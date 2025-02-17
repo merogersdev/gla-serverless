@@ -5,8 +5,11 @@ import {
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { randomUUID } from "crypto";
 
 import { getClient } from "../../../config/db";
+
+import { apiResponse } from "./response";
 
 type ItemProps = {
   PK: string;
@@ -21,54 +24,59 @@ type GetItemsProps = {
   };
 };
 
-const itemsTable = process.env.AWS_DYNAMODB_TABLENAME || "";
-
 // GET /items
-export const getItems = async ({ user }: GetItemsProps) => {
+export const getItems = async (email: string) => {
   const client = getClient();
 
-  if (!user) throw new Error("User Not Found");
+  if (!email) throw new Error("User Not Found");
 
   const getItemsCommand = new QueryCommand({
-    TableName: itemsTable,
+    TableName: process.env.AWS_DYNAMODB_TABLENAME,
     KeyConditionExpression: "#PK = :PK and begins_with(#SK,:SK)",
     ExpressionAttributeNames: {
       "#PK": "PK",
       "#SK": "SK",
     },
     ExpressionAttributeValues: {
-      ":PK": `USER#${user.email}`,
+      ":PK": `USER#${email}`,
       ":SK": "ITEM#",
     },
     ConsistentRead: true,
   });
 
-  return await client.send(getItemsCommand);
+  const result = await client.send(getItemsCommand);
+
+  return apiResponse(200, "Successfully Retrieved Items", result);
 };
 
 // POST /items
-export const createItem = async ({ PK, SK, VALUE, CHECKED }: ItemProps) => {
+export const createItem = async (email: string, value: string) => {
   const client = getClient();
+  const uuid = randomUUID();
 
-  if (!PK || !SK || !VALUE || !CHECKED) throw new Error("Invalid Item");
+  if (!value) throw new Error("Invalid Item");
+
+  const item = {
+    PK: `USER#${email}`,
+    SK: `ITEM#${uuid}`,
+    VALUE: value,
+    CHECKED: false,
+  };
 
   const createItemCommand = new PutCommand({
-    TableName: itemsTable,
-    Item: {
-      PK,
-      SK,
-      VALUE,
-      CHECKED,
-    },
+    TableName: process.env.TABLE_NAME,
+    Item: item,
     ConditionExpression:
       "attribute_not_exists(PK) and attribute_not_exists(SK)",
   });
 
-  return await client.send(createItemCommand);
+  const result = await client.send(createItemCommand);
+
+  return apiResponse(200, "Successfully Created Item", result);
 };
 
 // GET /items/{id}
-export const getItem = async ({ email, id }: { email: string; id: string }) => {
+export const getItem = async (email: string, id: string) => {
   const client = getClient();
 
   if (!email || !id) throw new Error("Cannot get Item");
@@ -79,21 +87,17 @@ export const getItem = async ({ email, id }: { email: string; id: string }) => {
   };
 
   const getSingleitem = new GetCommand({
-    TableName: itemsTable,
+    TableName: process.env.TABLE_NAME,
     Key: item,
   });
 
-  return await client.send(getSingleitem);
+  const result = await client.send(getSingleitem);
+
+  return apiResponse(200, "Successfully Retrieved Item", result);
 };
 
 // DELETE /items/{id}
-export const deleteItem = async ({
-  email,
-  id,
-}: {
-  email: string;
-  id: string;
-}) => {
+export const deleteItem = async (email: string, id: string) => {
   const client = getClient();
 
   if (!id) throw new Error("Invalid ID");
@@ -104,27 +108,21 @@ export const deleteItem = async ({
   };
 
   const deleteItemCommand = new DeleteCommand({
-    TableName: itemsTable,
+    TableName: process.env.TABLE_NAME,
     Key: item,
   });
 
-  return await client.send(deleteItemCommand);
+  const result = await client.send(deleteItemCommand);
+
+  return apiResponse(200, "Successfully Deleted Item", result);
 };
 
 // PATCH /items/{id}
-export const updateItem = async ({
-  email,
-  id,
-  input,
-}: {
-  email: string;
-  id: string;
-  input: string;
-}) => {
+// TODO: fix any
+export const updateItem = async (email: string, id: string, body: any) => {
   const client = getClient();
-  if (!email || !id || !input) throw new Error("Cannot Update Item");
+  if (!email || !id || !body) throw new Error("Cannot Update Item");
 
-  const body = JSON.parse(input);
   const itemKeys = Object.keys(body);
 
   const item = {
@@ -133,7 +131,7 @@ export const updateItem = async ({
   };
 
   const updateItem = new UpdateCommand({
-    TableName: itemsTable,
+    TableName: process.env.TABLE_NAME,
     Key: item,
     UpdateExpression: `SET ${itemKeys
       .map((_k, index) => `#field${index} = :value${index}`)
@@ -155,5 +153,7 @@ export const updateItem = async ({
     ReturnValues: "ALL_NEW",
   });
 
-  return await client.send(updateItem);
+  const result = await client.send(updateItem);
+
+  return apiResponse(200, "Successfully Updated Item", result);
 };
