@@ -2,13 +2,41 @@
 /* --- --- --- Variables --- --- --- */
 /* --------------------------------- */
 
+$desktopBreakpoint: 1280px;
+$tabletBreakpoint: 768px;
+$mobileBreakpoint: 375px;
+
 /* --- --- --- Colours --- --- --- */
 
-$primaryColor: #3c91e6;
-$secondaryColor: #9fd356;
+// $primaryColor: #3c91e6;
+// $secondaryColor: #9fd356;
 
-$darkColor: #011627;
-$lightColor: #fafffd;
+// $darkColor: #011627;
+// $lightColor: #fafffd;
 
-$mutedColor: #fffaff;
-$errorColor: #f71735;
+// $mutedColor: #fffaff;
+// $errorColor: #f71735;
+
+$backgroundColor: #dce0e5;
+$primaryColor: #27b96b;
+$secondaryColor: #292f36;
+$errorColor: #ef3e36;
+$infoColor: #3aaff8;
+$textColor: #ffffff;
+$mutedColor: #8f8f8f;
+
+$boxShadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 0.25rem 0.25rem rgba(0, 0, 0, 0.1);
+$borderRadius: 0.2rem;
+
+$textTransition: color 0.25s ease;
+
+$themes: (
+  light: (
+    text: $secondaryColor,
+    bg: white,
+  ),
+  dark: (
+    text: white,
+    bg: $secondaryColor,
+  ),
+);

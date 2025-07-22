@@ -1,9 +1,31 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 
-import App from "./App.tsx";
 import { store } from "./app/store.ts";
+import App from "./App.tsx";
+
+import HomePage from "./pages/HomePage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
+
+import "./styles/global.scss";
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<App />}>
+      <Route index={true} path="/" element={<HomePage />} />
+      <Route index={true} path="/login" element={<LoginPage />} />
+      <Route index={true} path="/register" element={<RegisterPage />} />
+    </Route>
+  )
+);
 
 const container = document.getElementById("root");
 
@@ -11,11 +33,11 @@ if (container) {
   const root = createRoot(container);
 
   root.render(
-    <StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </StrictMode>
+    <Provider store={store}>
+      <StrictMode>
+        <RouterProvider router={router} />
+      </StrictMode>
+    </Provider>
   );
 } else {
   throw new Error(

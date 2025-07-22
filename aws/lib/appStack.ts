@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
+import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { AttributeType, Table, BillingMode } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -11,12 +11,7 @@ import {
   AuthorizationType,
 } from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import {
-  UserPool,
-  VerificationEmailStyle,
-  AccountRecovery,
-  DateTimeAttribute,
-} from "aws-cdk-lib/aws-cognito";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
 
 export class AppStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -79,58 +74,38 @@ export class AppStack extends Stack {
     /* --- --- --- Cognito User Pool & Auth --- --- --- */
     /* ------------------------------------------------ */
 
+    // Cognito components:
     const userPool = new UserPool(this, "GLAServerlessUserPool", {
-      userPoolName: "GLAServerlessUserPool",
       signInAliases: {
         email: true,
+        username: true,
       },
-      selfSignUpEnabled: true,
-      autoVerify: {
-        email: true,
-      },
-      userVerification: {
-        emailSubject: "You need to verify your email",
-        emailBody: "Thanks for signing up Your verification code is {####}", //
-        emailStyle: VerificationEmailStyle.CODE,
-      },
-      standardAttributes: {
-        familyName: {
-          mutable: false,
-          required: true,
-        },
-        address: {
-          mutable: true,
-          required: false,
-        },
-      },
-      customAttributes: {
-        createdAt: new DateTimeAttribute(),
-      },
-      passwordPolicy: {
-        minLength: 8,
-        requireLowercase: true,
-        requireUppercase: true,
-        requireDigits: true,
-        requireSymbols: false,
-      },
-      accountRecovery: AccountRecovery.EMAIL_ONLY,
-      removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    userPool.addClient("GLAServerlessAppClient", {
-      userPoolClientName: "GLAServerlessAppClient",
+    const userPoolClient = userPool.addClient("GLAServerlessPoolClient", {
       authFlows: {
+        adminUserPassword: true,
         userPassword: true,
+        userSrp: true,
       },
     });
 
-    const auth = new CognitoUserPoolsAuthorizer(
+    const authorizer = new CognitoUserPoolsAuthorizer(
       this,
-      "GLAServerlessAPIAuthorizer",
+      "GLAServerlessUserAuthorizer",
       {
         cognitoUserPools: [userPool],
+        identitySource: "method.request.header.Authorization",
       }
     );
+
+    // outputs:
+    new CfnOutput(this, "GLAServerlessUserPoolId", {
+      value: userPool.userPoolId,
+    });
+    new CfnOutput(this, "GLAServerlessUserPoolClientId", {
+      value: userPoolClient.userPoolClientId,
+    });
 
     /* -------------------------------------------------- */
     /* --- --- --- API Routes, Methods & Auth --- --- --- */
@@ -144,7 +119,7 @@ export class AppStack extends Stack {
 
     // Use Cognito for User/API Auth
     const authOptions = {
-      authorizer: auth,
+      authorizer,
       authorizationType: AuthorizationType.COGNITO,
     };
 
