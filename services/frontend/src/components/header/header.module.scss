@@ -1,0 +1,32 @@
+@use "../../styles/variables.scss" as var;
+
+.header {
+  min-height: 4rem;
+  background-color: var.$secondaryColor;
+  box-shadow: var.$boxShadow;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  @include var.tablet {
+    min-height: 5rem;
+  }
+}
+
+.title {
+  font-size: 1.2rem;
+  color: var.$textColor;
+  transition: color 0.25s ease;
+  text-decoration: none;
+
+  &:hover {
+    color: var.$infoColor;
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}

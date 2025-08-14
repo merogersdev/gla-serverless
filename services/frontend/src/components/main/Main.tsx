@@ -1,9 +1,9 @@
 import type { NodeProps } from "../../types";
 
-import "./Main.scss";
+import styles from "./main.module.scss";
 
 const Main = ({ children }: NodeProps) => {
-  return <main className="main">{children}</main>;
+  return <main className={styles.main}>{children}</main>;
 };
 
 export default Main;

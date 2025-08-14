@@ -1,9 +1,9 @@
 import type { NodeProps } from "../../types";
 
-import "./Container.scss";
+import styles from "./container.module.scss";
 
 const Container = ({ children }: NodeProps) => {
-  return <div className="container">{children}</div>;
+  return <div className={styles.container}>{children}</div>;
 };
 
 export default Container;

@@ -11,7 +11,12 @@ import {
   AuthorizationType,
 } from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { UserPool } from "aws-cdk-lib/aws-cognito";
+import {
+  UserPool,
+  UserPoolClient,
+  AccountRecovery,
+  OAuthScope,
+} from "aws-cdk-lib/aws-cognito";
 
 export class AppStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -76,17 +81,47 @@ export class AppStack extends Stack {
 
     // Cognito components:
     const userPool = new UserPool(this, "GLAServerlessUserPool", {
+      selfSignUpEnabled: true,
       signInAliases: {
         email: true,
-        username: true,
+        username: false,
       },
+      standardAttributes: {
+        email: {
+          required: true,
+        },
+        givenName: {
+          required: true,
+          mutable: true,
+        },
+        familyName: {
+          required: true,
+          mutable: true,
+        },
+      },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+      },
+      accountRecovery: AccountRecovery.EMAIL_ONLY,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    const userPoolClient = userPool.addClient("GLAServerlessPoolClient", {
+    const userPoolClient = new UserPoolClient(this, "GLAServerlessClient", {
+      userPool: userPool,
       authFlows: {
-        adminUserPassword: true,
         userPassword: true,
         userSrp: true,
+      },
+      generateSecret: false,
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
+        },
+        scopes: [OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE],
+        callbackUrls: ["http://localhost:5173"],
       },
     });
 

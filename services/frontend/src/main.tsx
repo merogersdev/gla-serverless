@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
+
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -8,12 +8,22 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { store } from "./app/store.ts";
 import App from "./App.tsx";
+import { AuthProvider } from "react-oidc-context";
+import AuthContextProvider from "./context/auth.tsx";
 
-import HomePage from "./pages/HomePage.tsx";
-import RegisterPage from "./pages/RegisterPage.tsx";
-import LoginPage from "./pages/LoginPage.tsx";
+const cognitoAuthConfig = {
+  authority:
+    "https://cognito-idp.ca-central-1.amazonaws.com/ca-central-1_kfEngSk0R",
+  client_id: "25mb53t9brr415r459jfsd88i9",
+  redirect_uri: "http://localhost:5173",
+  response_type: "code",
+  scope: "aws.cognito.signin.user.admin email openid phone profile",
+};
+
+import HomePage from "./pages/Home.tsx";
+import RegisterPage from "./pages/Register.tsx";
+import LoginPage from "./pages/Login.tsx";
 
 import "./styles/global.scss";
 
@@ -33,11 +43,11 @@ if (container) {
   const root = createRoot(container);
 
   root.render(
-    <Provider store={store}>
-      <StrictMode>
+    <StrictMode>
+      <AuthContextProvider>
         <RouterProvider router={router} />
-      </StrictMode>
-    </Provider>
+      </AuthContextProvider>
+    </StrictMode>
   );
 } else {
   throw new Error(

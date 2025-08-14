@@ -1,0 +1,75 @@
+@use "sass:map";
+
+/* --------------------------------- */
+/* --- --- --- Variables --- --- --- */
+/* --------------------------------- */
+
+/* --- --- --- Breakpoints --- --- --- */
+
+$desktopBreakpoint: 1280px;
+$tabletBreakpoint: 768px;
+$mobileBreakpoint: 375px;
+
+/* --- --- --- Colours --- --- --- */
+
+// $primaryColor: #3c91e6;
+// $secondaryColor: #9fd356;
+
+// $darkColor: #011627;
+// $lightColor: #fafffd;
+
+// $mutedColor: #fffaff;
+// $errorColor: #f71735;
+
+$backgroundColor: #dce0e5;
+$primaryColor: #27b96b;
+$secondaryColor: #292f36;
+$errorColor: #ef3e36;
+$infoColor: #3aaff8;
+$textColor: #ffffff;
+$mutedColor: #8f8f8f;
+
+$boxShadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 0.25rem 0.25rem rgba(0, 0, 0, 0.1);
+$borderRadius: 0.2rem;
+
+$textTransition: color 0.25s ease;
+
+/* --- --- --- Mixins --- --- --- */
+
+@mixin tablet {
+  @media (min-width: $tabletBreakpoint) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (min-width: $mobileBreakpoint) {
+    @content;
+  }
+}
+
+/* --- --- --- Fonts --- --- --- */
+
+/* --- Open Sans - Normal --- */
+
+@font-face {
+  font-family: "OpenSans";
+  src: local("OpenSans"),
+    url("/fonts/OpenSans-VariableFont_wdth,wght.ttf") format("truetype"),
+    url("/fonts/OpenSans-VariableFont_wdth,wght.woff") format("truetype"),
+    url("/fonts/OpenSans-VariableFont_wdth,wght.woff2") format("truetype");
+  font-weight: 400, 500, 600, 700, 800;
+}
+
+/* --- Open Sans - Italic --- */
+
+@font-face {
+  font-family: "OpenSans";
+  src: local("OpenSans"),
+    url("/fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf") format("truetype"),
+    url("/fonts/OpenSans-Italic-VariableFont_wdth,wght.woff") format("truetype"),
+    url("/fonts/OpenSans-Italic-VariableFont_wdth,wght.woff2")
+      format("truetype");
+  font-weight: 400, 500, 600, 700, 800;
+  font-style: italic;
+}

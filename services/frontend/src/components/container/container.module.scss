@@ -1,0 +1,13 @@
+@use "../../styles/variables.scss" as var;
+
+.container {
+  display: flex;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 1rem;
+
+  @include var.tablet {
+    max-width: var.$tabletBreakpoint;
+    padding: 0;
+  }
+}

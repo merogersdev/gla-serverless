@@ -1,23 +1,19 @@
 import { Outlet } from "react-router-dom";
 
-import Header from "./components/Header/Header";
-import Container from "./components/Container/Container";
-import Main from "./components/Main/Main";
-
-import { useAppSelector } from "./app/hooks";
+import Header from "./components/header/Header";
+import Container from "./components/container/Container";
+import Main from "./components/main/Main";
 
 const App = () => {
-  const { value } = useAppSelector((state) => state.theme);
-
   return (
-    <div className={`${value}-theme`}>
+    <>
       <Header title="GLA Serverless" />
       <Main>
         <Container>
           <Outlet />
         </Container>
       </Main>
-    </div>
+    </>
   );
 };
 
