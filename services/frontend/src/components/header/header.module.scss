@@ -30,3 +30,27 @@
   justify-content: space-between;
   width: 100%;
 }
+
+.hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4rem;
+  width: 4rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  @include var.tablet {
+    display: none;
+  }
+}
+
+.icon {
+  color: var.$backgroundColor;
+  height: 1.5rem;
+  width: 1.5rem;
+  &:hover {
+    color: white;
+  }
+}

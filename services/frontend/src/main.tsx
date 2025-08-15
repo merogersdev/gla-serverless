@@ -10,7 +10,7 @@ import {
 
 import App from "./App.tsx";
 import { AuthProvider } from "react-oidc-context";
-import AuthContextProvider from "./context/auth.tsx";
+import AuthContextProvider from "./context/Auth.tsx";
 
 const cognitoAuthConfig = {
   authority:

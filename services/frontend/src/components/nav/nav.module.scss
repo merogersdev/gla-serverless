@@ -1,0 +1,54 @@
+@use "../../styles/variables.scss" as var;
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  left: 100%;
+  top: 0;
+  background-color: var.$secondaryColor;
+  transition: left 0.25s ease;
+  @include var.tablet {
+    position: relative;
+    left: auto;
+    top: auto;
+    height: auto;
+    width: auto;
+  }
+}
+
+.open {
+  left: 0;
+}
+
+.ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  @include var.tablet {
+    flex-direction: row;
+  }
+}
+
+.li {
+  margin: 0 auto;
+  @include var.tablet {
+    margin-left: 1rem;
+  }
+}
+
+.a {
+  display: flex;
+  text-decoration: none;
+  padding: 0.5rem;
+  color: var.$backgroundColor;
+  &:hover {
+    color: var.$infoColor;
+  }
+  @include var.tablet {
+    padding: 0;
+  }
+}
