@@ -53,6 +53,7 @@ export class AppStack extends Stack {
     const itemsLambda = new NodejsFunction(this, "GLAServerlessItemsLambda", {
       entry: "services/backend/handlers/items.ts",
       handler: "handler",
+      memorySize: 2048,
       runtime: Runtime.NODEJS_22_X,
       environment: {
         TABLE_NAME: dbTable.tableName,
@@ -62,6 +63,7 @@ export class AppStack extends Stack {
     const itemLambda = new NodejsFunction(this, "GLAServerlessItemLambda", {
       entry: "services/backend/handlers/item.ts",
       handler: "handler",
+      memorySize: 2048,
       runtime: Runtime.NODEJS_22_X,
       environment: {
         TABLE_NAME: dbTable.tableName,

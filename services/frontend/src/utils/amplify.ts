@@ -4,6 +4,8 @@ import {
   confirmSignUp,
   getCurrentUser,
   signOut,
+  fetchUserAttributes,
+  fetchAuthSession,
 } from "aws-amplify/auth";
 
 import { Amplify } from "aws-amplify";
@@ -64,10 +66,23 @@ export const confirm = async (email: string, code: string) => {
 
 export const getUser = async () => {
   const { username, userId, signInDetails } = await getCurrentUser();
-  console.log(username, userId, signInDetails);
+  console.log(userId);
   return { username, userId, signInDetails };
 };
 
 export const logout = async () => {
   await signOut();
+};
+
+export const getUserDetails = async () => {
+  const result = await fetchUserAttributes();
+  console.log(result);
+  return result;
+};
+
+export const getToken = async () => {
+  const session = await fetchAuthSession();
+  const token = session.tokens?.idToken?.toString();
+  console.log(token);
+  return token;
 };

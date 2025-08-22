@@ -10,7 +10,7 @@ import type { HeaderProps } from "../../types";
 import styles from "./header.module.scss";
 
 const Header = ({ title = "GLA Serverless" }: HeaderProps) => {
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
     {

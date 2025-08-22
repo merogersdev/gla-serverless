@@ -5,24 +5,10 @@ import {
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { randomUUID } from "crypto";
 
 import { getClient } from "../../../config/db";
 
 import { apiResponse } from "./response";
-
-type ItemProps = {
-  PK: string;
-  SK: string;
-  VALUE: string;
-  CHECKED: boolean;
-};
-
-type GetItemsProps = {
-  user: {
-    email: string;
-  };
-};
 
 // GET /items
 export const getItems = async (email: string) => {
@@ -31,7 +17,7 @@ export const getItems = async (email: string) => {
   if (!email) throw new Error("User Not Found");
 
   const getItemsCommand = new QueryCommand({
-    TableName: process.env.AWS_DYNAMODB_TABLENAME,
+    TableName: process.env.TABLE_NAME,
     KeyConditionExpression: "#PK = :PK and begins_with(#SK,:SK)",
     ExpressionAttributeNames: {
       "#PK": "PK",
@@ -52,20 +38,20 @@ export const getItems = async (email: string) => {
 // POST /items
 export const createItem = async (email: string, value: string) => {
   const client = getClient();
-  const uuid = randomUUID();
 
-  if (!value) throw new Error("Invalid Item");
+  const itemValue = value.toLowerCase();
 
-  const item = {
+  if (!itemValue) throw new Error("Invalid Item");
+
+  const newItem = {
     PK: `USER#${email}`,
-    SK: `ITEM#${uuid}`,
-    VALUE: value,
+    SK: `ITEM#${itemValue}`,
     CHECKED: false,
   };
 
   const createItemCommand = new PutCommand({
     TableName: process.env.TABLE_NAME,
-    Item: item,
+    Item: newItem,
     ConditionExpression:
       "attribute_not_exists(PK) and attribute_not_exists(SK)",
   });
@@ -93,6 +79,8 @@ export const getItem = async (email: string, id: string) => {
 
   const result = await client.send(getSingleitem);
 
+  if (!result.Item) return apiResponse(404, "Item Not Found", null);
+
   return apiResponse(200, "Successfully Retrieved Item", result);
 };
 
@@ -100,7 +88,7 @@ export const getItem = async (email: string, id: string) => {
 export const deleteItem = async (email: string, id: string) => {
   const client = getClient();
 
-  if (!id) throw new Error("Invalid ID");
+  if (!id) throw new Error("Invalid Item");
 
   const item = {
     PK: `USER#${email}`,
@@ -110,6 +98,8 @@ export const deleteItem = async (email: string, id: string) => {
   const deleteItemCommand = new DeleteCommand({
     TableName: process.env.TABLE_NAME,
     Key: item,
+    ConditionExpression: "attribute_exists(PK) and attribute_exists(SK)",
+    ReturnValues: "ALL_OLD",
   });
 
   const result = await client.send(deleteItemCommand);
@@ -123,34 +113,21 @@ export const updateItem = async (email: string, id: string, body: any) => {
   const client = getClient();
   if (!email || !id || !body) throw new Error("Cannot Update Item");
 
-  const itemKeys = Object.keys(body);
+  if (body.checked !== true || body.checked !== false)
+    return apiResponse(400, "Invalid Update of Item", null);
 
   const item = {
     PK: `USER#${email}`,
-    SK: `RECIPE#${id}`,
+    SK: `ITEM#${id}`,
   };
 
   const updateItem = new UpdateCommand({
     TableName: process.env.TABLE_NAME,
     Key: item,
-    UpdateExpression: `SET ${itemKeys
-      .map((_k, index) => `#field${index} = :value${index}`)
-      .join(", ")}`,
-    ExpressionAttributeNames: itemKeys.reduce(
-      (accumulator, k, index) => ({
-        ...accumulator,
-        [`#field${index}`]: k,
-      }),
-      {}
-    ),
-    ExpressionAttributeValues: itemKeys.reduce(
-      (accumulator, k, index) => ({
-        ...accumulator,
-        [`:value${index}`]: body[k],
-      }),
-      {}
-    ),
-    ReturnValues: "ALL_NEW",
+    UpdateExpression: `SET CHECKED = :CHECKED`,
+    ExpressionAttributeValues: {
+      ":CHECKED": body.checked,
+    },
   });
 
   const result = await client.send(updateItem);
