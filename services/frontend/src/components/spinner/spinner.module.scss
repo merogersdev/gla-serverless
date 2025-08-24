@@ -1,0 +1,24 @@
+@use "../../styles/variables.scss" as var;
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 4rem;
+  height: 4rem;
+  border: 0.75rem solid var.$textColor;
+  border-top: 0.75rem solid var.$secondaryColor;
+  border-radius: 50%;
+  animation: spinner 1s linear infinite;
+}
