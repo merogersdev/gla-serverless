@@ -18,7 +18,8 @@
   color: var.$textColor;
   transition: color 0.25s ease;
   text-decoration: none;
-
+  display: flex;
+  justify-content: end;
   &:hover {
     color: var.$infoColor;
   }
@@ -53,4 +54,8 @@
   &:hover {
     color: white;
   }
+}
+
+.favicon {
+  margin: 0 0.5rem 0 0;
 }

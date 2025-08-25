@@ -1,4 +1,5 @@
-import type { ReactNode, FormEvent } from "react";
+import type { ReactNode } from "react";
+import type { IconType } from "react-icons/lib";
 
 export type NodeProps = {
   children: ReactNode;
@@ -25,4 +26,18 @@ export type InputProps = {
   name: string;
   id: string;
   value: string;
+};
+
+export type LabelProps = {
+  htmlFor: string;
+  text: string;
+  children: ReactNode;
+};
+
+export type ButtonProps = {
+  Icon: IconType;
+  type: "button" | "submit";
+  children: ReactNode;
+  variant: "primary" | "secondary" | "outline";
+  onClick: () => void;
 };

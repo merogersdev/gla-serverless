@@ -1,13 +1,17 @@
 import { FormEvent, useState } from "react";
 
-import Form from "../components/form/Form";
-import Input from "../components/input/Input";
+import Form, { FormSeparator } from "../components/form/Form";
+import Input from "../components/form/input/Input";
+import Label from "../components/form/label/Label";
+import { MiniContainer } from "../components/container/Container";
+import { H1 } from "../components/typography/Typography";
+import Button from "../components/button/Button";
+import { FaEnvelope, FaGoogle } from "react-icons/fa6";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
   });
 
   const handleChange = (e: FormEvent) => {
@@ -19,28 +23,50 @@ export default function LoginPage() {
     console.log(formData);
   };
 
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+
+    console.log("submit");
+  };
+
   return (
-    <div>
+    <MiniContainer>
+      <H1>Login</H1>
       <Form>
-        <Input
-          name="email"
-          id="email"
-          onChange={handleChange}
-          value={formData.email}
-        />
-        <Input
-          name="password"
-          id="password"
-          onChange={handleChange}
-          value={formData.password}
-        />
-        <Input
-          name="confirmPassword"
-          id="confirmPassword"
-          onChange={handleChange}
-          value={formData.confirmPassword}
-        />
+        <Label htmlFor="email" text="Email">
+          <Input
+            name="email"
+            id="email"
+            onChange={handleChange}
+            value={formData.email}
+          />
+        </Label>
+        <Label htmlFor="password" text="Password">
+          <Input
+            name="password"
+            id="password"
+            onChange={handleChange}
+            value={formData.password}
+          />
+        </Label>
+        <Button
+          Icon={FaEnvelope}
+          type="submit"
+          variant="primary"
+          onClick={() => console.log("click")}
+        >
+          Login with Email
+        </Button>
+        <FormSeparator>or</FormSeparator>
+        <Button
+          Icon={FaGoogle}
+          type="submit"
+          variant="secondary"
+          onClick={() => console.log("click")}
+        >
+          Login with Google
+        </Button>
       </Form>
-    </div>
+    </MiniContainer>
   );
 }

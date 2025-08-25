@@ -1,6 +1,6 @@
 import styles from "./input.module.scss";
 
-import type { InputProps } from "../../types";
+import type { InputProps } from "../../../types";
 
 const Input = ({ name, value, onChange }: InputProps) => {
   return (

@@ -1,0 +1,20 @@
+@use "../../../styles/variables.scss" as var;
+
+@use "sass:color";
+
+.input {
+  display: block;
+  background-color: var.$textColor;
+  line-height: 3rem;
+  padding: 0 1rem;
+  border: none;
+  box-shadow: var.$boxShadow;
+  border-radius: 0.2rem;
+  color: color.scale(var.$mutedColor, $lightness: -40%);
+  font-size: 1.2rem;
+  outline: none;
+
+  &:focus {
+    outline: solid 2px var.$primaryColor;
+  }
+}

@@ -1,0 +1,42 @@
+@use "../../styles/variables.scss" as var;
+
+@use "sass:color";
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 3rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  border-radius: 0.2rem;
+  box-shadow: var.$boxShadow;
+}
+
+.primary {
+  background-color: color.scale(var.$primaryColor, $lightness: -15%);
+  box-shadow: var.$boxShadow;
+  color: var.$textColor;
+  font-size: 1.2rem;
+  &:hover {
+    background-color: color.scale(var.$primaryColor, $lightness: -10%);
+  }
+}
+
+.secondary {
+  background-color: color.scale(var.$secondaryColor, $lightness: -15%);
+  box-shadow: var.$boxShadow;
+  color: var.$textColor;
+  font-size: 1.2rem;
+  &:hover {
+    background-color: color.scale(var.$secondaryColor, $lightness: 5%);
+  }
+}
+
+.icon {
+  position: absolute;
+  transform: translateY(-50%, 0);
+  left: 1rem;
+}

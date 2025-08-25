@@ -1,0 +1,26 @@
+@use "../../styles/variables.scss" as var;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1.75rem;
+  margin-bottom: 1.75rem;
+  height: 1px;
+  border-bottom: 1px solid var.$mutedColor;
+  position: relative;
+}
+
+.text {
+  position: absolute;
+  padding: 0px 1rem;
+  color: var.$mutedColor;
+  background-color: var.$backgroundColor;
+  font-weight: 700;
+}

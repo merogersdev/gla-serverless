@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Container from "../container/Container";
 import { Link } from "react-router-dom";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaXmark, FaBowlFood } from "react-icons/fa6";
 
 import Nav from "../nav/Nav";
 
@@ -27,6 +27,7 @@ const Header = ({ title = "GLA Serverless" }: HeaderProps) => {
       <Container>
         <div className={styles.content}>
           <Link to="/" className={styles.title}>
+            <FaBowlFood className={styles.favicon} />
             {title}
           </Link>
           <Nav links={navLinks} menuOpen={menuOpen} />
@@ -36,7 +37,7 @@ const Header = ({ title = "GLA Serverless" }: HeaderProps) => {
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? (
-            <FaTimes className={styles.icon} />
+            <FaXmark className={styles.icon} />
           ) : (
             <FaBars className={styles.icon} />
           )}
