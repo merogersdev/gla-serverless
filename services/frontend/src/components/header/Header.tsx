@@ -3,11 +3,11 @@ import Container from "../container/Container";
 import { Link } from "react-router-dom";
 import { FaBars, FaXmark, FaBowlFood } from "react-icons/fa6";
 
-import Nav from "../nav/Nav";
+import Nav from "./nav/Nav";
 
 import type { HeaderProps } from "../../types";
 
-import styles from "./header.module.scss";
+import styles from "./Header.module.scss";
 
 const Header = ({ title = "GLA Serverless" }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,11 +26,11 @@ const Header = ({ title = "GLA Serverless" }: HeaderProps) => {
     <header className={styles.header}>
       <Container>
         <div className={styles.content}>
-          <Link to="/" className={styles.title}>
+          <Link to="/" className={styles.logo}>
             <FaBowlFood className={styles.favicon} />
-            {title}
+            <span className={styles.title}>{title}</span>
           </Link>
-          <Nav links={navLinks} menuOpen={menuOpen} />
+          <Nav links={navLinks} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
         </div>
         <div
           className={styles.hamburger}

@@ -1,4 +1,6 @@
-@use "../../styles/variables.scss" as var;
+@use "../../../styles/variables.scss" as var;
+
+@use "sass:color";
 
 .nav {
   display: flex;
@@ -44,6 +46,7 @@
   display: flex;
   text-decoration: none;
   padding: 0.5rem;
+  font-size: 1.2rem;
   color: var.$backgroundColor;
   &:hover {
     color: var.$infoColor;
@@ -51,4 +54,8 @@
   @include var.tablet {
     padding: 0;
   }
+}
+
+.active {
+  color: color.scale(var.$infoColor, $lightness: 25%);
 }

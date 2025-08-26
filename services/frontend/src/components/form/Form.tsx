@@ -1,6 +1,6 @@
 import type { FormProps } from "react-router-dom";
 
-import styles from "./form.module.scss";
+import styles from "./Form.module.scss";
 import { NodeProps } from "../../types";
 
 const Form = ({ onSubmit, name, id, children }: FormProps) => {

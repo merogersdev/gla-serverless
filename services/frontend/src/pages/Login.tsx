@@ -8,10 +8,13 @@ import { H1 } from "../components/typography/Typography";
 import Button from "../components/button/Button";
 import { FaEnvelope, FaGoogle } from "react-icons/fa6";
 
+import { validateForm } from "../utils/validate";
+
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    ready: false,
   });
 
   const handleChange = (e: FormEvent) => {
@@ -20,7 +23,7 @@ export default function LoginPage() {
       ...prev,
       [target.name]: target.value,
     }));
-    console.log(formData);
+    console.log(validateForm(formData));
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -32,37 +35,39 @@ export default function LoginPage() {
   return (
     <MiniContainer>
       <H1>Login</H1>
-      <Form>
-        <Label htmlFor="email" text="Email">
+      <Form onSubmit={handleSubmit}>
+        <Label htmlFor="email" ariaLabel="Email">
           <Input
             name="email"
             id="email"
             onChange={handleChange}
             value={formData.email}
+            placeholder="Email"
           />
         </Label>
-        <Label htmlFor="password" text="Password">
+        <Label htmlFor="password" ariaLabel="Password">
           <Input
             name="password"
             id="password"
             onChange={handleChange}
             value={formData.password}
+            placeholder="Password"
           />
         </Label>
         <Button
           Icon={FaEnvelope}
           type="submit"
           variant="primary"
-          onClick={() => console.log("click")}
+          isDisabled={false}
         >
           Login with Email
         </Button>
         <FormSeparator>or</FormSeparator>
         <Button
           Icon={FaGoogle}
-          type="submit"
+          type="button"
           variant="secondary"
-          onClick={() => console.log("click")}
+          isDisabled={false}
         >
           Login with Google
         </Button>

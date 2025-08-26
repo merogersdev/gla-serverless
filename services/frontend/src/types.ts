@@ -26,11 +26,12 @@ export type InputProps = {
   name: string;
   id: string;
   value: string;
+  placeholder: string;
 };
 
 export type LabelProps = {
   htmlFor: string;
-  text: string;
+  ariaLabel: string;
   children: ReactNode;
 };
 
@@ -39,5 +40,30 @@ export type ButtonProps = {
   type: "button" | "submit";
   children: ReactNode;
   variant: "primary" | "secondary" | "outline";
-  onClick: () => void;
+  onClick?: () => void;
+  isDisabled: boolean;
+};
+
+export type ItemProps = {
+  onClick?: () => void;
+  name: string;
+  id: string;
+};
+
+export type ItemListProps = {
+  items: ItemProps[];
+  message: string;
+};
+
+export type NavProps = {
+  links: NavLinkType[];
+  menuOpen: boolean;
+  setMenuOpen: any;
+};
+
+export type FormDataProps = {
+  email: string;
+  password: string;
+  confirmPassword?: string | undefined;
+  ready?: boolean;
 };

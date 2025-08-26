@@ -17,4 +17,7 @@
   &:focus {
     outline: solid 2px var.$primaryColor;
   }
+  &::placeholder {
+    color: color.scale(var.$mutedColor, $lightness: -20%);
+  }
 }

@@ -1,6 +1,6 @@
 import type { NodeProps } from "../../types";
 
-import styles from "./typography.module.scss";
+import styles from "./Typography.module.scss";
 
 // H1
 export const H1 = ({ children }: NodeProps) => {

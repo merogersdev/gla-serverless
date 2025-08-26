@@ -13,15 +13,25 @@
   }
 }
 
-.title {
+.logo {
   font-size: 1.2rem;
   color: var.$textColor;
   transition: color 0.25s ease;
   text-decoration: none;
   display: flex;
-  justify-content: end;
+  justify-content: center;
+
   &:hover {
     color: var.$infoColor;
+  }
+}
+
+.title {
+  display: none;
+  padding: 0.15rem 0 0 0;
+  height: 100%;
+  @include var.tablet {
+    display: flex;
   }
 }
 
@@ -57,5 +67,7 @@
 }
 
 .favicon {
-  margin: 0 0.5rem 0 0;
+  margin: 0 0.75rem 0 0;
+  height: 1.5rem;
+  width: 1.5rem;
 }

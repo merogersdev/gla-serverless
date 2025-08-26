@@ -1,8 +1,8 @@
-import styles from "./input.module.scss";
-
 import type { InputProps } from "../../../types";
 
-const Input = ({ name, value, onChange }: InputProps) => {
+import styles from "./Input.module.scss";
+
+const Input = ({ name, value, onChange, placeholder }: InputProps) => {
   return (
     <input
       type="text"
@@ -10,6 +10,7 @@ const Input = ({ name, value, onChange }: InputProps) => {
       value={value}
       onChange={onChange}
       className={styles.input}
+      placeholder={placeholder}
     />
   );
 };

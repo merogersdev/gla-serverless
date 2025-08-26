@@ -1,11 +1,10 @@
 import type { LabelProps } from "../../../types";
 
-import styles from "./label.module.scss";
+import styles from "./Label.module.scss";
 
-const Label = ({ htmlFor, text, children }: LabelProps) => {
+const Label = ({ htmlFor, ariaLabel, children }: LabelProps) => {
   return (
-    <label htmlFor={htmlFor} className={styles.label}>
-      <span className={styles.text}>{text}</span>
+    <label htmlFor={htmlFor} className={styles.label} aria-label={ariaLabel}>
       {children}
     </label>
   );

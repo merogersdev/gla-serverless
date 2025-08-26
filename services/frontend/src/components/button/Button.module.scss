@@ -40,3 +40,11 @@
   transform: translateY(-50%, 0);
   left: 1rem;
 }
+
+.disabled {
+  background-color: color.scale(var.$mutedColor, $lightness: -15%);
+  box-shadow: var.$boxShadow;
+  color: var.$textColor;
+  font-size: 1.2rem;
+  cursor: default;
+}
