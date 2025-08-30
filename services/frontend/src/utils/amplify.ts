@@ -29,7 +29,7 @@ export const login = async (username: string, password: string) => {
     username,
     password,
   });
-  console.log(result);
+
   return result;
 };
 
@@ -50,7 +50,7 @@ export const register = async (
       },
     },
   });
-  console.log(isSignUpComplete, userId, nextStep);
+
   return { isSignUpComplete, userId, nextStep };
 };
 
@@ -60,13 +60,12 @@ export const confirm = async (email: string, code: string) => {
     confirmationCode: code,
   });
 
-  console.log(isSignUpComplete, nextStep);
   return { isSignUpComplete, nextStep };
 };
 
 export const getUser = async () => {
   const { username, userId, signInDetails } = await getCurrentUser();
-  console.log(userId);
+
   return { username, userId, signInDetails };
 };
 
@@ -76,13 +75,11 @@ export const logout = async () => {
 
 export const getUserDetails = async () => {
   const result = await fetchUserAttributes();
-  console.log(result);
   return result;
 };
 
 export const getToken = async () => {
   const session = await fetchAuthSession();
   const token = session.tokens?.idToken?.toString();
-  console.log(token);
   return token;
 };

@@ -6,20 +6,30 @@ export const validateForm = (formData: FormDataProps) => {
 
   const emailRegex = /^[a-zA-Z0–9._%+-]+@[a-zA-Z0–9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  const nameRegex = /^[a-z ,.'-]+$/i;
 
-  // formInputs.forEach((input) => {
-  //   if (input === "email") {
-  //     ready = emailRegex.test(formData[input]);
-  //   } else if (input === "password") {
-  //     ready = passwordRegex.test(formData[input]);
-  //   } else if (input === "confirmPassword") {
-  //     ready = passwordRegex.test(formData[input] || "");
-  //   }
-  // });
+  formInputs.forEach((input) => {
+    switch (input) {
+      case "givenName":
+        ready = nameRegex.test(formData[input] || "");
+        break;
+      case "familyName":
+        ready = nameRegex.test(formData[input] || "");
+        break;
+      case "email":
+        ready = emailRegex.test(formData[input]);
+        break;
+      case "password":
+        ready = passwordRegex.test(formData[input]);
+        break;
+      case "confirmPassword":
+        ready = passwordRegex.test(formData[input] || "");
+        break;
 
-  if (formData.password === formData.confirmPassword) {
-    ready = true;
-  }
+      default:
+        ready = false;
+    }
+  });
 
   return ready;
 };

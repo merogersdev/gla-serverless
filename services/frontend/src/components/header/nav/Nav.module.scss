@@ -36,6 +36,8 @@
 }
 
 .li {
+  display: flex;
+  align-items: center;
   margin: 0 auto;
   @include var.tablet {
     margin-left: 1rem;
@@ -58,4 +60,32 @@
 
 .active {
   color: color.scale(var.$infoColor, $lightness: 25%);
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  @include var.tablet {
+    flex-direction: row;
+  }
+}
+
+.user {
+  display: flex;
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: var.$backgroundColor;
+  margin: 1rem 0;
+  @include var.tablet {
+    margin: 0 2rem 0 0.5rem;
+  }
+}
+
+.icon {
+  color: var.$backgroundColor;
+  height: 1.5rem;
+  width: 1.5rem;
 }

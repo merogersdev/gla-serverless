@@ -35,6 +35,19 @@
   }
 }
 
+.outline {
+  border: solid 2px var.$textColor;
+  background: none;
+  box-shadow: var.$boxShadow;
+  color: var.$textColor;
+  font-size: 1.2rem;
+  line-height: 2rem;
+  &:hover {
+    border: solid 2px var.$infoColor;
+    color: var.$infoColor;
+  }
+}
+
 .icon {
   position: absolute;
   transform: translateY(-50%, 0);

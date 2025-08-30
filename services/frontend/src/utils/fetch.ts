@@ -42,3 +42,22 @@ export const addItem = async (value: string) => {
     console.error(error);
   }
 };
+
+export const deleteItem = async (value: string) => {
+  const token = await getToken();
+
+  try {
+    const result = await fetch(`${baseUrl}/item/${value}`, {
+      method: "DELETE",
+      mode: "cors",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await result.json();
+    return data.payload.Items;
+  } catch (error) {
+    console.error(error);
+  }
+};

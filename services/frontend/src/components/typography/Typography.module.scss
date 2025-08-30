@@ -1,7 +1,14 @@
 @use "../../styles/variables.scss" as var;
 
+@use "sass:color";
+
 .h1 {
   padding: 0;
   margin: 2rem auto;
   color: var.$secondaryColor;
+}
+
+.p {
+  color: color.scale(var.$mutedColor, $lightness: -40%);
+  text-align: center;
 }

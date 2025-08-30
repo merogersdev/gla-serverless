@@ -149,7 +149,9 @@ export class AppStack extends Stack {
     /* -------------------------------------------------- */
 
     const items = api.root.addResource("items");
-    const item = items.addResource("{id}");
+    const item = api.root.addResource("item");
+
+    const itemId = item.addResource("{id}");
 
     const itemsIntegration = new LambdaIntegration(itemsLambda);
     const itemIntegration = new LambdaIntegration(itemLambda);
@@ -164,9 +166,9 @@ export class AppStack extends Stack {
     items.addMethod("GET", itemsIntegration, authOptions);
     items.addMethod("POST", itemsIntegration, authOptions);
 
-    // ENDPOINT: /items/{id}
-    item.addMethod("GET", itemIntegration, authOptions);
-    item.addMethod("PATCH", itemIntegration, authOptions);
-    item.addMethod("DELETE", itemIntegration, authOptions);
+    // ENDPOINT: /item/{id}
+    itemId.addMethod("GET", itemIntegration, authOptions);
+    itemId.addMethod("PATCH", itemIntegration, authOptions);
+    itemId.addMethod("DELETE", itemIntegration, authOptions);
   }
 }

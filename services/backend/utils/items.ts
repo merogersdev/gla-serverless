@@ -47,6 +47,7 @@ export const createItem = async (email: string, value: string) => {
     PK: `USER#${email}`,
     SK: `ITEM#${itemValue}`,
     CHECKED: false,
+    VALUE: itemValue,
   };
 
   const createItemCommand = new PutCommand({
@@ -61,7 +62,7 @@ export const createItem = async (email: string, value: string) => {
   return apiResponse(200, "Successfully Created Item", result);
 };
 
-// GET /items/{id}
+// GET /item/{id}
 export const getItem = async (email: string, id: string) => {
   const client = getClient();
 
@@ -84,7 +85,7 @@ export const getItem = async (email: string, id: string) => {
   return apiResponse(200, "Successfully Retrieved Item", result);
 };
 
-// DELETE /items/{id}
+// DELETE /item/{id}
 export const deleteItem = async (email: string, id: string) => {
   const client = getClient();
 
@@ -107,7 +108,7 @@ export const deleteItem = async (email: string, id: string) => {
   return apiResponse(200, "Successfully Deleted Item", result);
 };
 
-// PATCH /items/{id}
+// PATCH /item/{id}
 // TODO: fix any
 export const updateItem = async (email: string, id: string, body: any) => {
   const client = getClient();

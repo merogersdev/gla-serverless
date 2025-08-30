@@ -10,15 +10,23 @@ const Button = ({
   Icon,
   isDisabled,
 }: ButtonProps) => {
-  const buttonVariant = isDisabled
-    ? styles.disabled
-    : variant === "primary"
-    ? styles.primary
-    : variant === "secondary"
-    ? styles.secondary
-    : variant === "outline"
-    ? styles.outline
-    : "";
+  let buttonVariant;
+
+  switch (true) {
+    case isDisabled:
+      buttonVariant = styles.disabled;
+      break;
+    case variant === "primary":
+      buttonVariant = styles.primary;
+      break;
+    case variant === "secondary":
+      buttonVariant = styles.secondary;
+      break;
+    case variant === "outline":
+      buttonVariant = styles.outline;
+      break;
+  }
+
   return (
     <button
       onClick={onClick}

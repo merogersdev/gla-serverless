@@ -6,3 +6,8 @@ import styles from "./Typography.module.scss";
 export const H1 = ({ children }: NodeProps) => {
   return <h1 className={styles.h1}>{children}</h1>;
 };
+
+// P
+export const P = ({ children }: NodeProps) => {
+  return <p className={styles.p}>{children}</p>;
+};

@@ -2,10 +2,10 @@ import type { InputProps } from "../../../types";
 
 import styles from "./Input.module.scss";
 
-const Input = ({ name, value, onChange, placeholder }: InputProps) => {
+const Input = ({ name, value, onChange, placeholder, type }: InputProps) => {
   return (
     <input
-      type="text"
+      type={type}
       name={name}
       value={value}
       onChange={onChange}

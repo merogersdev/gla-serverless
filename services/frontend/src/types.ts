@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEventHandler, ReactNode, SetStateAction } from "react";
 import type { IconType } from "react-icons/lib";
 
 export type NodeProps = {
@@ -27,6 +27,7 @@ export type InputProps = {
   id: string;
   value: string;
   placeholder: string;
+  type: "text" | "password";
 };
 
 export type LabelProps = {
@@ -36,18 +37,17 @@ export type LabelProps = {
 };
 
 export type ButtonProps = {
-  Icon: IconType;
+  Icon?: IconType;
   type: "button" | "submit";
   children: ReactNode;
   variant: "primary" | "secondary" | "outline";
   onClick?: () => void;
-  isDisabled: boolean;
+  isDisabled?: boolean;
 };
 
 export type ItemProps = {
-  onClick?: () => void;
-  name: string;
-  id: string;
+  VALUE: string;
+  SK: string;
 };
 
 export type ItemListProps = {
@@ -64,6 +64,21 @@ export type NavProps = {
 export type FormDataProps = {
   email: string;
   password: string;
+  givenName?: string;
+  familyName?: string;
   confirmPassword?: string | undefined;
   ready?: boolean;
+};
+
+export type AuthType = {
+  user: {
+    email: string;
+    givenName: string;
+    familyName: string;
+  } | null;
+};
+
+export type AuthContextType = {
+  auth: AuthType | null;
+  setAuth: React.Dispatch<SetStateAction<AuthType | null>>;
 };

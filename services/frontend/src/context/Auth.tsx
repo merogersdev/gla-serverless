@@ -1,24 +1,19 @@
-import React, { useState, createContext, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, createContext, useContext } from "react";
 
 import type { NodeProps } from "../types";
-
-type AuthContextType = {
-  auth: object | {};
-  setAuth: React.Dispatch<React.SetStateAction<object>>;
-};
+import type { AuthType, AuthContextType } from "../types";
 
 const initialAuthState = {
-  auth: {},
+  auth: {
+    user: null,
+  },
   setAuth: () => {},
 };
 
 const AuthContext = createContext<AuthContextType>(initialAuthState);
 
 const AuthContextProvider = ({ children }: NodeProps) => {
-  const [auth, setAuth] = useState<object>({});
-
-  // const navigate = useNavigate();
+  const [auth, setAuth] = useState<AuthType | null>(null);
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>

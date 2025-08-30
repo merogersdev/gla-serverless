@@ -1,3 +1,5 @@
+import { motion, AnimatePresence } from "framer-motion";
+
 import Item from "../Item";
 
 import type { ItemListProps } from "../../../types";
@@ -9,9 +11,18 @@ const List = ({ items, message = "No items to display" }: ItemListProps) => {
     return <div className={styles.message}>{message}</div>;
   return (
     <ul className={styles.ul}>
-      {items.map(({ name, id }) => (
-        <Item key={id} name={name} id={id} onClick={() => console.log(id)} />
-      ))}
+      <AnimatePresence>
+        {items.map(({ SK, VALUE }) => (
+          <motion.div
+            key={SK}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Item SK={SK} VALUE={VALUE} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </ul>
   );
 };
