@@ -13,7 +13,7 @@ import { validateForm } from "../utils/validate";
 import { useAuthContext } from "../context/Auth";
 
 export const Register = () => {
-  const { auth } = useAuthContext();
+  const { user } = useAuthContext();
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const [confirmUser, setConfirmUser] = useState(false);
   const [deliveryMedium, setDeliveryMedium] = useState("");
@@ -84,7 +84,7 @@ export const Register = () => {
     }
   }, [formData]);
 
-  if (auth) return <Navigate to="/" />;
+  if (user) return <Navigate to="/" replace />;
 
   if (confirmUser)
     return (

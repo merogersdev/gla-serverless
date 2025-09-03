@@ -1,5 +1,6 @@
 import type { MouseEventHandler, ReactNode, SetStateAction } from "react";
 import type { IconType } from "react-icons/lib";
+import type { UserAttributeKey } from "@aws-amplify/auth";
 
 export type NodeProps = {
   children: ReactNode;
@@ -51,7 +52,7 @@ export type ItemProps = {
 };
 
 export type ItemListProps = {
-  items: ItemProps[];
+  items?: ItemProps[] | null | undefined;
   message: string;
 };
 
@@ -70,15 +71,12 @@ export type FormDataProps = {
   ready?: boolean;
 };
 
-export type AuthType = {
-  user: {
-    email: string;
-    givenName: string;
-    familyName: string;
-  } | null;
+export type UserType = {
+  email: string;
+  givenName: string;
+  familyName: string;
 };
 
 export type AuthContextType = {
-  auth: AuthType | null;
-  setAuth: React.Dispatch<SetStateAction<AuthType | null>>;
+  user: Partial<Record<UserAttributeKey, string>> | null | undefined;
 };

@@ -2,33 +2,36 @@ import { NavLink } from "react-router-dom";
 import { FaCircleUser } from "react-icons/fa6";
 
 import { useAuthContext } from "../../../context/Auth";
-import type { NavProps } from "../../../types";
 import Button from "../../button/Button";
-import { logout } from "../../../utils/amplify";
 import { useNavigate } from "react-router-dom";
+import { useLogout } from "../../../hooks/useAuth";
+
+import type { NavProps } from "../../../types";
 
 import styles from "./Nav.module.scss";
 
 const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
-  const { auth, setAuth } = useAuthContext();
+  const { user } = useAuthContext();
+
+  const logout = useLogout();
 
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    setAuth(null);
     navigate("/login");
+    logout.mutate();
+    // setAuth(null);
   };
 
   const openClass = menuOpen ? styles.open : "";
   return (
     <nav className={`${styles.nav} ${openClass}`}>
       <ul className={styles.ul}>
-        {auth?.user ? (
+        {user ? (
           <li className={styles.li}>
             <div className={styles.info}>
               <FaCircleUser className={styles.icon} />
-              <div className={styles.user}>Hi, {auth.user.givenName}</div>
+              <div className={styles.user}>Hi, {user.given_name}</div>
               <Button variant="outline" onClick={handleLogout} type="button">
                 Logout
               </Button>

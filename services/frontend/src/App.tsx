@@ -8,37 +8,40 @@ import Main from "./components/main/Main";
 import { ToastContainer } from "react-toastify";
 import { getUserDetails } from "./utils/amplify";
 
-import "react-toastify/dist/ReactToastify.css";
+import { useGetUser } from "./hooks/useAuth";
 
-const queryClient = new QueryClient();
+import "react-toastify/dist/ReactToastify.css";
 
 import { useAuthContext } from "./context/Auth";
 
 const App = () => {
-  const { auth, setAuth } = useAuthContext();
+  //const { setAuth } = useAuthContext();
 
-  useEffect(() => {
-    const getAuth = async () => {
-      try {
-        const user = await getUserDetails();
+  // useEffect(() => {
+  //   const getAuth = async () => {
+  //     try {
+  //       const user = await getUserDetails();
+  //       console.log(user);
 
-        setAuth({
-          user: {
-            email: user.email || "",
-            givenName: user.given_name || "",
-            familyName: user.family_name || "",
-          },
-        });
-      } catch (error) {}
-    };
+  //       if (user) {
+  //         setAuth({
+  //           user: {
+  //             email: user.email || "",
+  //             givenName: user.given_name || "",
+  //             familyName: user.family_name || "",
+  //           },
+  //         });
+  //       }
+  //     } catch (error) {}
+  //   };
 
-    return () => {
-      getAuth();
-    };
-  }, []);
+  //   return () => {
+  //     getAuth();
+  //   };
+  // }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <Header title="GLA Serverless" />
       <Main>
         <Container>
@@ -57,7 +60,7 @@ const App = () => {
           theme="light"
         />
       </Main>
-    </QueryClientProvider>
+    </>
   );
 };
 

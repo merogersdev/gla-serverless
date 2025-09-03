@@ -10,4 +10,8 @@ export const MiniContainer = ({ children }: NodeProps) => {
   return <div className={styles.minicontainer}>{children}</div>;
 };
 
+export const LoadingContainer = ({ children }: NodeProps) => {
+  return <div className={styles.loadingcontainer}>{children}</div>;
+};
+
 export default Container;

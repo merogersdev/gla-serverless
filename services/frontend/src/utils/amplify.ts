@@ -64,9 +64,13 @@ export const confirm = async (email: string, code: string) => {
 };
 
 export const getUser = async () => {
-  const { username, userId, signInDetails } = await getCurrentUser();
+  try {
+    const { username, userId, signInDetails } = await getCurrentUser();
 
-  return { username, userId, signInDetails };
+    return { username, userId, signInDetails };
+  } catch (error) {
+    return null;
+  }
 };
 
 export const logout = async () => {
@@ -74,8 +78,12 @@ export const logout = async () => {
 };
 
 export const getUserDetails = async () => {
-  const result = await fetchUserAttributes();
-  return result;
+  try {
+    const result = await fetchUserAttributes();
+    return result;
+  } catch (error) {
+    return null;
+  }
 };
 
 export const getToken = async () => {

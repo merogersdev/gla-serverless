@@ -1,16 +1,18 @@
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Navigate } from "react-router-dom";
+
 import List from "../components/item/list/List";
 import Add from "../components/item/add/Add";
 import { MiniContainer } from "../components/container/Container";
 import Spinner from "../components/spinner/Spinner";
-
-import { useQuery } from "@tanstack/react-query";
 import { getItems } from "../utils/fetch";
 import { useAuthContext } from "../context/Auth";
-import { getUserDetails } from "../utils/amplify";
+import { toast } from "react-toastify";
 
 export const Home = () => {
-  const { setAuth } = useAuthContext();
+  const { user } = useAuthContext();
+
+  if (!user) return <Navigate to="/login" replace />;
 
   const {
     isLoading: isItemsLoading,
@@ -21,28 +23,10 @@ export const Home = () => {
     queryFn: () => getItems(),
   });
 
-  useEffect(() => {
-    const getAuth = async () => {
-      try {
-        const user = await getUserDetails();
-
-        setAuth({
-          user: {
-            email: user.email || "",
-            givenName: user.given_name || "",
-            familyName: user.family_name || "",
-          },
-        });
-      } catch (error) {}
-    };
-
-    return () => {
-      getAuth();
-    };
-  }, []);
-
-  if (isItemsLoading) return <Spinner />;
-  if (itemsError) return <div>{itemsError.message}</div>;
+  if (isItemsLoading || !items) return <Spinner />;
+  if (itemsError) {
+    toast.error(itemsError.message);
+  }
 
   return (
     <MiniContainer>

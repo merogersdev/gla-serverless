@@ -1,24 +1,32 @@
-import { useState, createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 
 import type { NodeProps } from "../types";
-import type { AuthType, AuthContextType } from "../types";
+import type { AuthContextType } from "../types";
+
+import { LoadingContainer } from "../components/container/Container";
+import Spinner from "../components/spinner/Spinner";
+import { useGetUser } from "../hooks/useAuth";
 
 const initialAuthState = {
-  auth: {
-    user: null,
-  },
-  setAuth: () => {},
+  user: null,
 };
 
 const AuthContext = createContext<AuthContextType>(initialAuthState);
 
 const AuthContextProvider = ({ children }: NodeProps) => {
-  const [auth, setAuth] = useState<AuthType | null>(null);
+  // const [auth, setAuth] = useState<AuthType | null>(null);
+
+  const { data: user, isLoading } = useGetUser();
+
+  if (isLoading)
+    return (
+      <LoadingContainer>
+        <Spinner />
+      </LoadingContainer>
+    );
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
   );
 };
 

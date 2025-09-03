@@ -7,21 +7,22 @@ import type { ItemListProps } from "../../../types";
 import styles from "./List.module.scss";
 
 const List = ({ items, message = "No items to display" }: ItemListProps) => {
-  if (items.length === 0)
+  if (items && items.length === 0)
     return <div className={styles.message}>{message}</div>;
   return (
     <ul className={styles.ul}>
       <AnimatePresence>
-        {items.map(({ SK, VALUE }) => (
-          <motion.div
-            key={SK}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <Item SK={SK} VALUE={VALUE} />
-          </motion.div>
-        ))}
+        {items &&
+          items.map(({ SK, VALUE }) => (
+            <motion.div
+              key={SK}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <Item SK={SK} VALUE={VALUE} />
+            </motion.div>
+          ))}
       </AnimatePresence>
     </ul>
   );

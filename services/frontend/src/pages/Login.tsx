@@ -1,27 +1,26 @@
 import { FormEvent, useState, useEffect } from "react";
-import Form, { FormSeparator } from "../components/form/Form";
+import { useNavigate, Navigate } from "react-router-dom";
+
+import Form from "../components/form/Form";
 import Input from "../components/form/input/Input";
 import Label from "../components/form/label/Label";
 import { MiniContainer } from "../components/container/Container";
 import { H1 } from "../components/typography/Typography";
 import Button from "../components/button/Button";
 import { FaEnvelope, FaGoogle } from "react-icons/fa6";
-import { toast } from "react-toastify";
-
 import { validateForm } from "../utils/validate";
-import { login } from "../utils/amplify";
-import { Navigate, useNavigate } from "react-router-dom";
-
 import { useAuthContext } from "../context/Auth";
+import { useLogin } from "../hooks/useAuth";
 
 export const Login = () => {
-  const { auth } = useAuthContext();
+  const { user } = useAuthContext();
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const [formData, setFormData] = useState({
     email: "michelleevarogers@gmail.com",
     password: "abc123ABC",
   });
 
+  const { mutateAsync: login, isPending } = useLogin();
   const navigate = useNavigate();
 
   const handleLoginChange = (e: FormEvent) => {
@@ -37,13 +36,11 @@ export const Login = () => {
     const { email, password } = formData;
 
     try {
-      const user = await login(email, password);
-
+      const user = await login({ username: email, password });
       if (user.isSignedIn) {
         navigate("/");
       }
     } catch (error) {
-      toast.error("Cannot log in");
       console.log(error);
     }
   };
@@ -58,7 +55,7 @@ export const Login = () => {
     }
   }, [formData]);
 
-  if (auth) return <Navigate to="/" />;
+  if (user) return <Navigate to="/" />;
 
   return (
     <MiniContainer>
@@ -88,7 +85,7 @@ export const Login = () => {
           Icon={FaEnvelope}
           type="submit"
           variant="primary"
-          isDisabled={!readyToSubmit}
+          isDisabled={!readyToSubmit || isPending}
         >
           Login with Email
         </Button>
