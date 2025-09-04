@@ -8,13 +8,15 @@ export const handler: Handler = async (event) => {
   const method = event.httpMethod;
   const body = JSON.parse(event.body);
 
+  const noBodyResponse = apiResponse(400, "Error: Invalid Request Body", null);
+
   try {
     switch (method) {
       case "POST":
-        if (!body) return apiResponse(400, "Error: Invalid Request Body", null);
+        if (!body) return noBodyResponse;
         return await createItem(email, body.value);
       case "GET":
-        if (body) return apiResponse(400, "Error: Body", null);
+        if (!body) return noBodyResponse;
         return await getItems(email);
       default:
         return apiResponse(400, "Error: Invalid Method", null);

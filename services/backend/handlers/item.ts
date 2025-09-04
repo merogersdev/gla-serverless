@@ -10,7 +10,7 @@ export const handler: Handler = async (event) => {
   const body = JSON.parse(event.body);
 
   if (!id) return apiResponse(400, "Error: Invalid ID", null);
-  if (!email) return apiResponse(400, "Error: Invalid ID", null);
+  if (!email) return apiResponse(400, "Error: Invalid Email", null);
 
   try {
     switch (method) {

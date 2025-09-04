@@ -70,12 +70,23 @@ export class AppStack extends Stack {
       },
     });
 
+    const userLambda = new NodejsFunction(this, "GLAServerlessUserLambda", {
+      entry: "services/backend/handlers/user.ts",
+      handler: "handler",
+      memorySize: 2048,
+      runtime: Runtime.NODEJS_22_X,
+      environment: {
+        TABLE_NAME: dbTable.tableName,
+      },
+    });
+
     /* -------------------------------------------- */
     /* --- --- --- Database Permissions --- --- --- */
     /* -------------------------------------------- */
 
     dbTable.grantReadWriteData(itemsLambda);
     dbTable.grantReadWriteData(itemLambda);
+    dbTable.grantReadWriteData(userLambda);
 
     /* ------------------------------------------------ */
     /* --- --- --- Cognito User Pool & Auth --- --- --- */
@@ -150,11 +161,13 @@ export class AppStack extends Stack {
 
     const items = api.root.addResource("items");
     const item = api.root.addResource("item");
+    const user = api.root.addResource("user");
 
     const itemId = item.addResource("{id}");
 
     const itemsIntegration = new LambdaIntegration(itemsLambda);
     const itemIntegration = new LambdaIntegration(itemLambda);
+    const userIntegration = new LambdaIntegration(userLambda);
 
     // Use Cognito for User/API Auth
     const authOptions = {
@@ -170,5 +183,11 @@ export class AppStack extends Stack {
     itemId.addMethod("GET", itemIntegration, authOptions);
     itemId.addMethod("PATCH", itemIntegration, authOptions);
     itemId.addMethod("DELETE", itemIntegration, authOptions);
+
+    // ENDPOINT: /user
+    user.addMethod("POST", userIntegration);
+    user.addMethod("GET", userIntegration, authOptions);
+    user.addMethod("PATCH", userIntegration, authOptions);
+    user.addMethod("DELETE", userIntegration, authOptions);
   }
 }

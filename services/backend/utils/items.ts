@@ -109,13 +109,15 @@ export const deleteItem = async (email: string, id: string) => {
 };
 
 // PATCH /item/{id}
-// TODO: fix any
-export const updateItem = async (email: string, id: string, body: any) => {
+export const updateItem = async (
+  email: string,
+  id: string,
+  body: { checked: boolean }
+) => {
   const client = getClient();
   if (!email || !id || !body) throw new Error("Cannot Update Item");
 
-  if (body.checked !== true || body.checked !== false)
-    return apiResponse(400, "Invalid Update of Item", null);
+  if (!body.checked) return apiResponse(400, "Invalid Update of Item", null);
 
   const item = {
     PK: `USER#${email}`,
