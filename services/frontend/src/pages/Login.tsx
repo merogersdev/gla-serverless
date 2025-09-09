@@ -7,7 +7,7 @@ import Label from "../components/form/label/Label";
 import { MiniContainer } from "../components/container/Container";
 import { H1 } from "../components/typography/Typography";
 import Button from "../components/button/Button";
-import { FaEnvelope, FaGoogle } from "react-icons/fa6";
+import { FaEnvelope } from "react-icons/fa6";
 import { validateForm } from "../utils/validate";
 import { useAuthContext } from "../context/Auth";
 import { useLogin } from "../hooks/useAuth";

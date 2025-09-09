@@ -59,7 +59,6 @@ export const confirm = async (email: string, code: string) => {
     username: email,
     confirmationCode: code,
   });
-
   return { isSignUpComplete, nextStep };
 };
 

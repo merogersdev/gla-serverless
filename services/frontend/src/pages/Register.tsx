@@ -5,12 +5,16 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Form from "../components/form/Form";
 import Input from "../components/form/input/Input";
 import Label from "../components/form/label/Label";
+import Button from "../components/button/Button";
+
 import { MiniContainer } from "../components/container/Container";
 import { H1, P } from "../components/typography/Typography";
-import Button from "../components/button/Button";
 import { confirm, register } from "../utils/amplify";
 import { validateForm } from "../utils/validate";
 import { useAuthContext } from "../context/Auth";
+import { toast } from "react-toastify";
+import { addUserProfile } from "../utils/fetch";
+import { handleError } from "../utils/error";
 
 export const Register = () => {
   const { user } = useAuthContext();
@@ -20,11 +24,11 @@ export const Register = () => {
   const [destination, setDestination] = useState("");
   const [confirmCode, setConfirmCode] = useState("");
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    givenName: "",
-    familyName: "",
-    confirmPassword: "",
+    email: "michelleevarogers@gmail.com",
+    password: "abc123ABC",
+    givenName: "Michelle",
+    familyName: "Rogers",
+    confirmPassword: "abc123ABC",
   });
 
   const navigate = useNavigate();
@@ -40,36 +44,44 @@ export const Register = () => {
   const handleRegisterSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const { email, password, givenName, familyName } = formData;
+    try {
+      const { email, password, givenName, familyName } = formData;
 
-    const { isSignUpComplete, nextStep, userId } = await register(
-      email,
-      password,
-      givenName,
-      familyName
-    );
+      const { nextStep } = await register(
+        email,
+        password,
+        givenName,
+        familyName
+      );
 
-    console.log(isSignUpComplete);
-    console.log(nextStep);
-    console.log(userId);
+      if (nextStep.signUpStep === "CONFIRM_SIGN_UP") {
+        const destination = nextStep.codeDeliveryDetails.destination as string;
+        const deliveryMedium = nextStep.codeDeliveryDetails
+          .deliveryMedium as string;
+        setDestination(destination);
+        setDeliveryMedium(deliveryMedium);
 
-    if (nextStep.signUpStep === "CONFIRM_SIGN_UP") {
-      const destination = nextStep.codeDeliveryDetails.destination as string;
-      const deliveryMedium = nextStep.codeDeliveryDetails
-        .deliveryMedium as string;
-      setDestination(destination);
-      setDeliveryMedium(deliveryMedium);
-
-      setConfirmUser(true);
+        setConfirmUser(true);
+      }
+    } catch (error) {
+      handleError(error);
     }
   };
 
   const handleRegisterConfirm = async (e: FormEvent) => {
     e.preventDefault();
-    const confirmation = await confirm(formData.email, confirmCode);
 
-    if (confirmation.isSignUpComplete) {
-      navigate("/login");
+    try {
+      const result = await confirm(formData.email, confirmCode);
+
+      if (result) {
+        const { givenName, familyName } = formData;
+        await addUserProfile(givenName, familyName);
+        navigate("/login");
+        toast.success("Confirmation successful. You may log in.");
+      }
+    } catch (error) {
+      handleError(error);
     }
   };
 

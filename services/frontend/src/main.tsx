@@ -1,7 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -10,14 +9,19 @@ import {
 } from "react-router-dom";
 
 import App from "./App.tsx";
-
 import AuthContextProvider from "./context/Auth.tsx";
 
 import Home from "./pages/Home.tsx";
 import Register from "./pages/Register.tsx";
 import Login from "./pages/Login.tsx";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 import "./styles/global.scss";
 

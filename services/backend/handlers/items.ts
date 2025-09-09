@@ -16,7 +16,6 @@ export const handler: Handler = async (event) => {
         if (!body) return noBodyResponse;
         return await createItem(email, body.value);
       case "GET":
-        if (!body) return noBodyResponse;
         return await getItems(email);
       default:
         return apiResponse(400, "Error: Invalid Method", null);

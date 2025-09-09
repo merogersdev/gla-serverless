@@ -18,7 +18,9 @@ import {
   OAuthScope,
 } from "aws-cdk-lib/aws-cognito";
 
-export class AppStack extends Stack {
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
+
+export class backendStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -70,23 +72,12 @@ export class AppStack extends Stack {
       },
     });
 
-    const userLambda = new NodejsFunction(this, "GLAServerlessUserLambda", {
-      entry: "services/backend/handlers/user.ts",
-      handler: "handler",
-      memorySize: 2048,
-      runtime: Runtime.NODEJS_22_X,
-      environment: {
-        TABLE_NAME: dbTable.tableName,
-      },
-    });
-
     /* -------------------------------------------- */
     /* --- --- --- Database Permissions --- --- --- */
     /* -------------------------------------------- */
 
     dbTable.grantReadWriteData(itemsLambda);
     dbTable.grantReadWriteData(itemLambda);
-    dbTable.grantReadWriteData(userLambda);
 
     /* ------------------------------------------------ */
     /* --- --- --- Cognito User Pool & Auth --- --- --- */
@@ -122,6 +113,12 @@ export class AppStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    userPool.addDomain("GLAServerlessUserPoolDomain", {
+      cognitoDomain: {
+        domainPrefix: "gla-serverless",
+      },
+    });
+
     const userPoolClient = new UserPoolClient(this, "GLAServerlessClient", {
       userPool: userPool,
       authFlows: {
@@ -134,7 +131,7 @@ export class AppStack extends Stack {
           authorizationCodeGrant: true,
         },
         scopes: [OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE],
-        callbackUrls: ["http://localhost:5173"],
+        callbackUrls: ["http://localhost:5173", "https://gla.merogers.dev"],
       },
     });
 
@@ -155,19 +152,43 @@ export class AppStack extends Stack {
       value: userPoolClient.userPoolClientId,
     });
 
+    const userPoolId = new StringParameter(
+      this,
+      "GLAServerlessUserPoolIdStringParameter",
+      {
+        parameterName: "/glaserverless/prod/userpoolid",
+        description: "GLA Serverless User Pool ID Parmeter",
+        stringValue: userPool.userPoolId,
+      }
+    );
+
+    const userPoolClientId = new StringParameter(
+      this,
+      "GLAServerlessUserPoolClientIdStringParameter",
+      {
+        parameterName: "/glaserverless/prod/userpoolclientid",
+        description: "GLA Serverless User Pool Client ID Parmeter",
+        stringValue: userPoolClient.userPoolClientId,
+      }
+    );
+
+    const restApiUrl = new StringParameter(this, "GLAServerlessRestApiUrl", {
+      parameterName: "/glaserverless/prod/restapiurl",
+      description: "GLA Serverless Rest API Url",
+      stringValue: api.url,
+    });
+
     /* -------------------------------------------------- */
     /* --- --- --- API Routes, Methods & Auth --- --- --- */
     /* -------------------------------------------------- */
 
     const items = api.root.addResource("items");
     const item = api.root.addResource("item");
-    const user = api.root.addResource("user");
 
     const itemId = item.addResource("{id}");
 
     const itemsIntegration = new LambdaIntegration(itemsLambda);
     const itemIntegration = new LambdaIntegration(itemLambda);
-    const userIntegration = new LambdaIntegration(userLambda);
 
     // Use Cognito for User/API Auth
     const authOptions = {
@@ -183,11 +204,5 @@ export class AppStack extends Stack {
     itemId.addMethod("GET", itemIntegration, authOptions);
     itemId.addMethod("PATCH", itemIntegration, authOptions);
     itemId.addMethod("DELETE", itemIntegration, authOptions);
-
-    // ENDPOINT: /user
-    user.addMethod("POST", userIntegration);
-    user.addMethod("GET", userIntegration, authOptions);
-    user.addMethod("PATCH", userIntegration, authOptions);
-    user.addMethod("DELETE", userIntegration, authOptions);
   }
 }

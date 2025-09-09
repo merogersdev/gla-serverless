@@ -7,26 +7,25 @@ import { MiniContainer } from "../components/container/Container";
 import Spinner from "../components/spinner/Spinner";
 import { getItems } from "../utils/fetch";
 import { useAuthContext } from "../context/Auth";
-import { toast } from "react-toastify";
+import { handleError } from "../utils/error";
 
 export const Home = () => {
   const { user } = useAuthContext();
 
   if (!user) return <Navigate to="/login" replace />;
 
-  const {
-    isLoading: isItemsLoading,
-    error: itemsError,
-    data: items,
-  } = useQuery({
+  const { isLoading: isItemsLoading, data: items } = useQuery({
     queryKey: ["items"],
-    queryFn: () => getItems(),
+    queryFn: async () => {
+      try {
+        return await getItems();
+      } catch (error) {
+        handleError(error);
+      }
+    },
   });
 
   if (isItemsLoading || !items) return <Spinner />;
-  if (itemsError) {
-    toast.error(itemsError.message);
-  }
 
   return (
     <MiniContainer>

@@ -1,9 +1,9 @@
 import { NavLink } from "react-router-dom";
 import { FaCircleUser } from "react-icons/fa6";
 
-import { useAuthContext } from "../../../context/Auth";
 import Button from "../../button/Button";
-import { useNavigate } from "react-router-dom";
+
+import { useAuthContext } from "../../../context/Auth";
 import { useLogout } from "../../../hooks/useAuth";
 
 import type { NavProps } from "../../../types";
@@ -15,12 +15,8 @@ const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
 
   const logout = useLogout();
 
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
-    navigate("/login");
     logout.mutate();
-    // setAuth(null);
   };
 
   const openClass = menuOpen ? styles.open : "";
