@@ -16,7 +16,7 @@ new backendStack(app, "GLAServerlessBackendStack", {
 
 new frontendStack(app, "GLAServerlessFrontendStack", {
   env,
-  certificateArnParameter: "/glaserverless/prod/certificatearn",
-  domainParameter: "/glaserverless/prod/domain",
-  subdomainParameter: "/glaserverless/prod/subdomain",
+  certificateArnParam: "/glaserverless/prod/certificatearn",
+  domain: "merogers.dev",
+  subDomain: "gla",
 });

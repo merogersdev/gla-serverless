@@ -83,7 +83,6 @@ export class backendStack extends Stack {
     /* --- --- --- Cognito User Pool & Auth --- --- --- */
     /* ------------------------------------------------ */
 
-    // Cognito components:
     const userPool = new UserPool(this, "GLAServerlessUserPool", {
       selfSignUpEnabled: true,
       signInAliases: {

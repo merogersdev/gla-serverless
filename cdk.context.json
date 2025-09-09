@@ -1,5 +1,9 @@
 {
   "acknowledged-issue-numbers": [
     34892
-  ]
+  ],
+  "hosted-zone:account=791886172857:domainName=merogers.dev:region=ca-central-1": {
+    "Id": "/hostedzone/Z1013087M1QXFL5FITII",
+    "Name": "merogers.dev."
+  }
 }

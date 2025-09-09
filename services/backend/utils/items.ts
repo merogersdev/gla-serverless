@@ -6,7 +6,7 @@ import {
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
 
-import { getClient } from "../../../config/db";
+import { getClient } from "../config/db";
 
 import { apiResponse } from "./response";
 

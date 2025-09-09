@@ -16,7 +16,10 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 ## TODO
 
 - [x] Add user API endpoints
+- [x] Fix Refetch on focus
+- [x] Fix Rerender on logout
+- [x] Add Frontend IaC
+- [ ] Add Mini Loading Spinner to Buttons
 - [ ] Code Cleanup
 - [ ] Add Readme
 - [ ] Add Google SSO Login
-- [ ] Setup GitHub Actions for Frontend Deploy
