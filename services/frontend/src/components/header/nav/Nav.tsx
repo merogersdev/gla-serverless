@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { FaCircleUser } from "react-icons/fa6";
 
 import Button from "../../button/Button";
 
@@ -12,12 +11,12 @@ import styles from "./Nav.module.scss";
 
 const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
   const { user } = useAuthContext();
-
   const logout = useLogout();
 
-  const handleLogout = async () => {
-    logout.mutate();
-  };
+  const firstInitial = user?.given_name?.[0] || "";
+  const lastInitial = user?.family_name?.[0] || "";
+
+  const handleLogout = async () => logout.mutate();
 
   const openClass = menuOpen ? styles.open : "";
   return (
@@ -26,7 +25,10 @@ const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
         {user ? (
           <li className={styles.li}>
             <div className={styles.info}>
-              <FaCircleUser className={styles.icon} />
+              <div className={styles.avatar}>
+                {firstInitial}
+                {lastInitial}
+              </div>
               <div className={styles.user}>Hi, {user.given_name}</div>
               <Button variant="outline" onClick={handleLogout} type="button">
                 Logout

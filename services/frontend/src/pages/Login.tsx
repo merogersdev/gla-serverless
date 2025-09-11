@@ -86,6 +86,7 @@ export const Login = () => {
           type="submit"
           variant="primary"
           isDisabled={!readyToSubmit || isPending}
+          isLoading={isPending}
         >
           Login with Email
         </Button>

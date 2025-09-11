@@ -84,8 +84,15 @@
   }
 }
 
-.icon {
-  color: var.$backgroundColor;
-  height: 1.5rem;
-  width: 1.5rem;
+.avatar {
+  color: var.$secondaryColor;
+  line-height: 2.5rem;
+  width: 2.5rem;
+  background-color: color.scale(var.$infoColor, $lightness: 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: 50%;
+  font-size: 1.1rem;
 }

@@ -6,6 +6,8 @@ import { addItem } from "../../../utils/fetch";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { nameRegex } from "../../../utils/validate";
+
 import { toast } from "react-toastify";
 
 import styles from "./Add.module.scss";
@@ -33,7 +35,14 @@ const Add = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
+    if (newItem === "") {
+      toast.error("Item cannot be blank");
+      return;
+    }
+    if (!nameRegex.test(newItem)) {
+      toast.error("Item names must not contain special characters");
+      return;
+    }
     addItemMutation.mutate();
   };
 

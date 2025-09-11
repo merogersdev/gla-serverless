@@ -19,4 +19,21 @@ const Spinner = () => {
   );
 };
 
+export const MiniSpinner = () => {
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className={styles.minimotion}
+      >
+        <div className={styles.minispinner}>
+          <div className={styles.minicontainer}></div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 export default Spinner;

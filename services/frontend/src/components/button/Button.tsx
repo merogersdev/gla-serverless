@@ -1,5 +1,7 @@
 import type { ButtonProps } from "../../types";
 
+import { MiniSpinner } from "../spinner/Spinner";
+
 import styles from "./Button.module.scss";
 
 const Button = ({
@@ -9,6 +11,7 @@ const Button = ({
   type,
   Icon,
   isDisabled,
+  isLoading,
 }: ButtonProps) => {
   let buttonVariant;
 
@@ -35,6 +38,7 @@ const Button = ({
       disabled={isDisabled}
     >
       {Icon && <Icon className={styles.icon} />}
+      {isLoading && <MiniSpinner />}
       {children}
     </button>
   );

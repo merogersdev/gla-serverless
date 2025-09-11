@@ -44,6 +44,7 @@ export type ButtonProps = {
   variant: "primary" | "secondary" | "outline";
   onClick?: () => void;
   isDisabled?: boolean;
+  isLoading?: boolean;
 };
 
 export type ItemProps = {

@@ -17,12 +17,39 @@
 .container {
   width: 4rem;
   height: 4rem;
-  border: 0.75rem solid var.$textColor;
-  border-top: 0.75rem solid var.$secondaryColor;
+  border: 0.5rem solid var.$textColor;
+  border-top: 0.5rem solid var.$secondaryColor;
   border-radius: 50%;
   animation: spinner 1s linear infinite;
 }
 
+.minispinner {
+  display: flex;
+  justify-content: center;
+}
+
+.minicontainer {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.25rem solid var.$backgroundColor;
+  border-top: 0.25rem solid var.$secondaryColor;
+  border-radius: 50%;
+  animation: spinner 1s linear infinite;
+  position: relative;
+}
+
 .motion {
   margin: 0 auto;
+}
+
+.minimotion {
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  height: 3rem;
+  width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

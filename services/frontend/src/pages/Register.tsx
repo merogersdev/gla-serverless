@@ -13,7 +13,6 @@ import { confirm, register } from "../utils/amplify";
 import { validateForm } from "../utils/validate";
 import { useAuthContext } from "../context/Auth";
 import { toast } from "react-toastify";
-import { addUserProfile } from "../utils/fetch";
 import { handleError } from "../utils/error";
 
 export const Register = () => {
@@ -75,8 +74,6 @@ export const Register = () => {
       const result = await confirm(formData.email, confirmCode);
 
       if (result) {
-        const { givenName, familyName } = formData;
-        await addUserProfile(givenName, familyName);
         navigate("/login");
         toast.success("Confirmation successful. You may log in.");
       }
