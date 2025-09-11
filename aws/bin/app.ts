@@ -48,8 +48,6 @@ const backend = new backendStack(
     stage: config.app.stageName,
     subDomain: config.app.subDomain,
     domainName: config.ssm.domain,
-    userPoolId: config.ssm.userPoolId,
-    userPoolClientId: config.ssm.userPoolClientId,
   }
 );
 

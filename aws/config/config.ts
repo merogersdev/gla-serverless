@@ -16,8 +16,5 @@ export const config = {
     githubToken: "/glas/github/token",
     githubAccount: "/glas/github/account",
     githubRepo: "/glas/github/repo",
-    // Auto Add
-    userPoolId: "/glas/prod/userpoolid",
-    userPoolClientId: "/glas/prod/userpoolclientid",
   },
 };

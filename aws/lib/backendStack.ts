@@ -30,8 +30,6 @@ interface BackendProps extends StackProps {
   stage: string;
   domainName: string;
   subDomain: string;
-  userPoolId: string;
-  userPoolClientId: string;
   certificate: Certificate;
   zone: IHostedZone;
 }
@@ -43,16 +41,7 @@ export class backendStack extends Stack {
   constructor(scope: Construct, id: string, props: BackendProps) {
     super(scope, id, props);
 
-    const {
-      appName,
-      stage,
-      domainName,
-      subDomain,
-      userPoolId,
-      userPoolClientId,
-      certificate,
-      zone,
-    } = props;
+    const { appName, stage, domainName, subDomain, certificate, zone } = props;
 
     /* ----------------------------------------------- */
     /* --- --- --- Domain & Cert Lazy Load --- --- --- */
