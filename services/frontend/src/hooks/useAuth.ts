@@ -34,10 +34,6 @@ export const useLogin = () => {
       queryClient.setQueryData(["user"], user);
       toast.success("Login successful");
     },
-    onError: async (error) => {
-      toast.error(`${error.message}`);
-      //console.error(error);
-    },
   });
 };
 

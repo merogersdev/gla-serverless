@@ -11,6 +11,7 @@ import { FaEnvelope } from "react-icons/fa6";
 import { validateForm } from "../utils/validate";
 import { useAuthContext } from "../context/Auth";
 import { useLogin } from "../hooks/useAuth";
+import { handleError } from "../utils/error";
 
 export const Login = () => {
   const { user } = useAuthContext();
@@ -41,7 +42,7 @@ export const Login = () => {
         navigate("/");
       }
     } catch (error) {
-      console.log(error);
+      handleError(error);
     }
   };
 
@@ -50,9 +51,10 @@ export const Login = () => {
 
     if (validForm) {
       setReadyToSubmit(true);
-    } else {
-      setReadyToSubmit(false);
+      return;
     }
+
+    setReadyToSubmit(false);
   }, [formData]);
 
   if (user) return <Navigate to="/" />;

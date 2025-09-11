@@ -22,6 +22,7 @@ export const Register = () => {
   const [deliveryMedium, setDeliveryMedium] = useState("");
   const [destination, setDestination] = useState("");
   const [confirmCode, setConfirmCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "michelleevarogers@gmail.com",
     password: "abc123ABC",
@@ -42,7 +43,7 @@ export const Register = () => {
 
   const handleRegisterSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const { email, password, givenName, familyName } = formData;
 
@@ -61,24 +62,28 @@ export const Register = () => {
         setDeliveryMedium(deliveryMedium);
 
         setConfirmUser(true);
+        setIsLoading(false);
       }
     } catch (error) {
       handleError(error);
+      setIsLoading(false);
     }
   };
 
   const handleRegisterConfirm = async (e: FormEvent) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const result = await confirm(formData.email, confirmCode);
 
       if (result) {
         navigate("/login");
         toast.success("Confirmation successful. You may log in.");
+        setIsLoading(false);
       }
     } catch (error) {
       handleError(error);
+      setIsLoading(false);
     }
   };
 
@@ -88,9 +93,10 @@ export const Register = () => {
 
     if (validForm && passwordsMatch) {
       setReadyToSubmit(true);
-    } else {
-      setReadyToSubmit(false);
+      return;
     }
+
+    setReadyToSubmit(false);
   }, [formData]);
 
   if (user) return <Navigate to="/" replace />;
@@ -119,7 +125,8 @@ export const Register = () => {
             Icon={FaUserCheck}
             type="submit"
             variant="primary"
-            isDisabled={false}
+            isDisabled={isLoading}
+            isLoading={isLoading}
           >
             Confirm
           </Button>
@@ -185,7 +192,8 @@ export const Register = () => {
           Icon={FaUserPlus}
           type="submit"
           variant="primary"
-          isDisabled={!readyToSubmit}
+          isDisabled={!readyToSubmit || isLoading}
+          isLoading={isLoading}
         >
           Register
         </Button>

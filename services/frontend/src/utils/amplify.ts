@@ -30,6 +30,8 @@ export const login = async (username: string, password: string) => {
     password,
   });
 
+  if (!result) throw new Error("Cannot log in");
+
   return result;
 };
 
