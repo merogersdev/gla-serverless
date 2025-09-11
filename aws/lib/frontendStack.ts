@@ -70,6 +70,7 @@ export class frontendStack extends Stack {
       {
         certificate,
         domainNames: [siteDomain],
+        defaultRootObject: "index.html",
         defaultBehavior: {
           origin: S3BucketOrigin.withOriginAccessControl(frontendBucket),
         },
