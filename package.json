@@ -9,6 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "install-frontend": "cd ./services/frontend && npm ci",
     "build-frontend": "cd ./services/frontend && npm run build",
     "deploy": "cdk deploy --require-approval never --outputs-file outputs.json"
   },

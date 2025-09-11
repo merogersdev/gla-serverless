@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
+import { Stack, StackProps, RemovalPolicy, CfnOutput, Lazy } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { AttributeType, Table, BillingMode } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -9,6 +9,9 @@ import {
   ApiKeySourceType,
   CognitoUserPoolsAuthorizer,
   AuthorizationType,
+  EndpointType,
+  BasePathMapping,
+  DomainName,
 } from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import {
@@ -17,18 +20,73 @@ import {
   AccountRecovery,
   OAuthScope,
 } from "aws-cdk-lib/aws-cognito";
-
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
+import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { ApiGatewayv2DomainProperties } from "aws-cdk-lib/aws-route53-targets";
+
+interface BackendProps extends StackProps {
+  appName: string;
+  stage: string;
+  domainName: string;
+  subDomain: string;
+  userPoolId: string;
+  userPoolClientId: string;
+  certificate: Certificate;
+  zone: IHostedZone;
+}
 
 export class backendStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  public readonly userPool;
+  public readonly userPoolClient;
+  public readonly apiDomain;
+  constructor(scope: Construct, id: string, props: BackendProps) {
     super(scope, id, props);
+
+    const {
+      appName,
+      stage,
+      domainName,
+      subDomain,
+      userPoolId,
+      userPoolClientId,
+      certificate,
+      zone,
+    } = props;
+
+    /* ----------------------------------------------- */
+    /* --- --- --- Domain & Cert Lazy Load --- --- --- */
+    /* ----------------------------------------------- */
+
+    const domainParameter = StringParameter.valueFromLookup(this, domainName);
+
+    const domain = Lazy.string({ produce: () => domainParameter });
+
+    // Domain for API
+    const apiDomain = new DomainName(this, `${appName}-DomainName`, {
+      domainName: `api.${subDomain}.${domain}`,
+      certificate,
+      endpointType: EndpointType.EDGE,
+    });
+
+    // Route53 Alias
+    new ARecord(this, `${appName}-DomainNameApiAlias`, {
+      recordName: `api.${subDomain}`,
+      zone,
+      target: RecordTarget.fromAlias(
+        new ApiGatewayv2DomainProperties(
+          apiDomain.domainNameAliasDomainName,
+          apiDomain.domainNameAliasHostedZoneId
+        )
+      ),
+    });
 
     /* -------------------------------------- */
     /* --- --- --- DynamoDB Table --- --- --- */
     /* -------------------------------------- */
 
-    const dbTable = new Table(this, "GLAServerlessTable", {
+    const dbTable = new Table(this, `${appName}-Table-${stage}`, {
+      tableName: `${appName}-Table-${stage}`,
       partitionKey: { name: "PK", type: AttributeType.STRING },
       sortKey: { name: "SK", type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
@@ -39,38 +97,51 @@ export class backendStack extends Stack {
     /* --- --- --- REST API --- --- --- */
     /* -------------------------------- */
 
-    const api = new RestApi(this, "GLAServerlessRestAPI", {
-      restApiName: "GLAServerlessRestAPI",
+    const api = new RestApi(this, `${appName}-RestAPI-${stage}`, {
+      restApiName: `${appName}-RestAPI`,
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
         allowMethods: Cors.ALL_METHODS,
       },
+      deploy: true,
+      deployOptions: {
+        stageName: stage,
+      },
       apiKeySourceType: ApiKeySourceType.HEADER,
+      endpointTypes: [EndpointType.EDGE],
     });
 
     /* ---------------------------------------- */
     /* --- --- --- Lambda Functions --- --- --- */
     /* ---------------------------------------- */
 
-    const itemsLambda = new NodejsFunction(this, "GLAServerlessItemsLambda", {
-      entry: "services/backend/handlers/items.ts",
-      handler: "handler",
-      memorySize: 2048,
-      runtime: Runtime.NODEJS_22_X,
-      environment: {
-        TABLE_NAME: dbTable.tableName,
-      },
-    });
+    const itemsLambda = new NodejsFunction(
+      this,
+      `${appName}-ItemsLambda-${stage}`,
+      {
+        entry: "services/backend/handlers/items.ts",
+        handler: "handler",
+        memorySize: 2048,
+        runtime: Runtime.NODEJS_22_X,
+        environment: {
+          TABLE_NAME: dbTable.tableName,
+        },
+      }
+    );
 
-    const itemLambda = new NodejsFunction(this, "GLAServerlessItemLambda", {
-      entry: "services/backend/handlers/item.ts",
-      handler: "handler",
-      memorySize: 2048,
-      runtime: Runtime.NODEJS_22_X,
-      environment: {
-        TABLE_NAME: dbTable.tableName,
-      },
-    });
+    const itemLambda = new NodejsFunction(
+      this,
+      `${appName}-ItemLambda-${stage}`,
+      {
+        entry: "services/backend/handlers/item.ts",
+        handler: "handler",
+        memorySize: 2048,
+        runtime: Runtime.NODEJS_22_X,
+        environment: {
+          TABLE_NAME: dbTable.tableName,
+        },
+      }
+    );
 
     /* -------------------------------------------- */
     /* --- --- --- Database Permissions --- --- --- */
@@ -83,7 +154,7 @@ export class backendStack extends Stack {
     /* --- --- --- Cognito User Pool & Auth --- --- --- */
     /* ------------------------------------------------ */
 
-    const userPool = new UserPool(this, "GLAServerlessUserPool", {
+    const userPool = new UserPool(this, `${appName}-UserPool-${stage}`, {
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -112,31 +183,38 @@ export class backendStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    userPool.addDomain("GLAServerlessUserPoolDomain", {
+    userPool.addDomain(`${appName}-UserPoolDomain-${stage}`, {
       cognitoDomain: {
-        domainPrefix: "gla-serverless",
+        domainPrefix: `${appName.toLowerCase()}-${stage.toLowerCase()}`,
       },
     });
 
-    const userPoolClient = new UserPoolClient(this, "GLAServerlessClient", {
-      userPool: userPool,
-      authFlows: {
-        userPassword: true,
-        userSrp: true,
-      },
-      generateSecret: false,
-      oAuth: {
-        flows: {
-          authorizationCodeGrant: true,
+    const userPoolClient = new UserPoolClient(
+      this,
+      `${appName}-Client-${stage}`,
+      {
+        userPool: userPool,
+        authFlows: {
+          userPassword: true,
+          userSrp: true,
         },
-        scopes: [OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE],
-        callbackUrls: ["http://localhost:5173", "https://gla.merogers.dev"],
-      },
-    });
+        generateSecret: false,
+        oAuth: {
+          flows: {
+            authorizationCodeGrant: true,
+          },
+          scopes: [OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE],
+          callbackUrls: [
+            "http://localhost:5173",
+            `https://${subDomain}.${domain}`,
+          ],
+        },
+      }
+    );
 
     const authorizer = new CognitoUserPoolsAuthorizer(
       this,
-      "GLAServerlessUserAuthorizer",
+      `${appName}-UserAuthorizer-${stage}`,
       {
         cognitoUserPools: [userPool],
         identitySource: "method.request.header.Authorization",
@@ -144,37 +222,11 @@ export class backendStack extends Stack {
     );
 
     // outputs:
-    new CfnOutput(this, "GLAServerlessUserPoolId", {
+    new CfnOutput(this, `${appName}-UserPoolId-${stage}`, {
       value: userPool.userPoolId,
     });
-    new CfnOutput(this, "GLAServerlessUserPoolClientId", {
+    new CfnOutput(this, `${appName}-UserPoolClientId-${stage}`, {
       value: userPoolClient.userPoolClientId,
-    });
-
-    const userPoolId = new StringParameter(
-      this,
-      "GLAServerlessUserPoolIdStringParameter",
-      {
-        parameterName: "/glaserverless/prod/userpoolid",
-        description: "GLA Serverless User Pool ID Parmeter",
-        stringValue: userPool.userPoolId,
-      }
-    );
-
-    const userPoolClientId = new StringParameter(
-      this,
-      "GLAServerlessUserPoolClientIdStringParameter",
-      {
-        parameterName: "/glaserverless/prod/userpoolclientid",
-        description: "GLA Serverless User Pool Client ID Parmeter",
-        stringValue: userPoolClient.userPoolClientId,
-      }
-    );
-
-    const restApiUrl = new StringParameter(this, "GLAServerlessRestApiUrl", {
-      parameterName: "/glaserverless/prod/restapiurl",
-      description: "GLA Serverless Rest API Url",
-      stringValue: api.url,
     });
 
     /* -------------------------------------------------- */
@@ -203,5 +255,18 @@ export class backendStack extends Stack {
     itemId.addMethod("GET", itemIntegration, authOptions);
     itemId.addMethod("PATCH", itemIntegration, authOptions);
     itemId.addMethod("DELETE", itemIntegration, authOptions);
+
+    /* ----------------------------------------- */
+    /* --- --- --- Base Path Mapping --- --- --- */
+    /* ----------------------------------------- */
+
+    new BasePathMapping(this, `${appName}-BasePathMapping`, {
+      domainName: apiDomain,
+      restApi: api,
+    });
+
+    this.userPool = userPool;
+    this.userPoolClient = userPoolClient;
+    this.apiDomain = apiDomain;
   }
 }

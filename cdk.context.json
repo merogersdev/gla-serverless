@@ -5,5 +5,11 @@
   "hosted-zone:account=791886172857:domainName=merogers.dev:region=ca-central-1": {
     "Id": "/hostedzone/Z1013087M1QXFL5FITII",
     "Name": "merogers.dev."
-  }
+  },
+  "ssm:account=791886172857:parameterName=/glas/domain:region=ca-central-1": "merogers.dev",
+  "ssm:account=791886172857:parameterName=/glas/hostedzoneid:region=ca-central-1": "Z1013087M1QXFL5FITII",
+  "ssm:account=791886172857:parameterName=/glas/domain:region=us-east-1": "merogers.dev",
+  "ssm:account=791886172857:parameterName=/glas/hostedzoneid:region=us-east-1": "Z1013087M1QXFL5FITII",
+  "ssm:account=791886172857:parameterName=/glas/github/account:region=ca-central-1": "merogersdev",
+  "ssm:account=791886172857:parameterName=/glas/github/repo:region=ca-central-1": "gla-serverless"
 }
