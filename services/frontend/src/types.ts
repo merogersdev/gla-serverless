@@ -41,7 +41,7 @@ export type ButtonProps = {
   Icon?: IconType;
   type: "button" | "submit";
   children: ReactNode;
-  variant: "primary" | "secondary" | "outline";
+  variant: "primary" | "secondary" | "google" | "outline";
   onClick?: () => void;
   isDisabled?: boolean;
   isLoading?: boolean;
@@ -80,4 +80,8 @@ export type UserType = {
 
 export type AuthContextType = {
   user: Partial<Record<UserAttributeKey, string>> | null | undefined;
+  setUser: React.Dispatch<
+    React.SetStateAction<Partial<Record<UserAttributeKey, string>> | null>
+  >;
+  isPending: boolean;
 };

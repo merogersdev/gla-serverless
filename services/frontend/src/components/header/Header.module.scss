@@ -1,5 +1,7 @@
 @use "../../styles/variables.scss" as var;
 
+@use "sass:color";
+
 .header {
   min-height: 4rem;
   background-color: var.$secondaryColor;
@@ -23,6 +25,9 @@
 
   &:hover {
     color: var.$infoColor;
+  }
+  &:active {
+    color: color.scale(var.$infoColor, $lightness: -15%);
   }
 }
 

@@ -1,32 +1,59 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-import type { NodeProps } from "../types";
-import type { AuthContextType } from "../types";
+import type { UserAttributeKey } from "aws-amplify/auth";
+import { Hub } from "aws-amplify/utils";
 
-import { LoadingContainer } from "../components/container/Container";
-import Spinner from "../components/spinner/Spinner";
-import { useGetUser } from "../hooks/useAuth";
+import { getUserDetails } from "../utils/amplify";
+import { toast } from "react-toastify";
+
+import type { NodeProps, AuthContextType } from "../types";
 
 const initialAuthState = {
+  isPending: false,
   user: null,
+  setUser: () => {},
 };
 
 const AuthContext = createContext<AuthContextType>(initialAuthState);
 
 const AuthContextProvider = ({ children }: NodeProps) => {
-  // const [auth, setAuth] = useState<AuthType | null>(null);
+  const [user, setUser] = useState<Partial<
+    Record<UserAttributeKey, string>
+  > | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
-  const { data: user, isLoading } = useGetUser();
+  useEffect(() => {
+    const unsubscribe = Hub.listen("auth", ({ payload }) => {
+      switch (payload.event) {
+        case "signInWithRedirect":
+          getUser();
+          toast.success("Sign in with Google Successful");
+          break;
+        case "signInWithRedirect_failure":
+          toast.error("Failed to sign in with Google");
+          break;
+      }
+    });
 
-  if (isLoading)
-    return (
-      <LoadingContainer>
-        <Spinner />
-      </LoadingContainer>
-    );
+    getUser();
+    return unsubscribe;
+  }, []);
+
+  const getUser = async () => {
+    setIsPending(true);
+    try {
+      const currentUserAttributes = await getUserDetails();
+      setUser(currentUserAttributes);
+      setIsPending(false);
+    } catch (error) {
+      setIsPending(false);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, setUser, isPending }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 

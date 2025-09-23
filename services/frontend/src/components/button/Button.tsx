@@ -25,6 +25,9 @@ const Button = ({
     case variant === "secondary":
       buttonVariant = styles.secondary;
       break;
+    case variant === "google":
+      buttonVariant = styles.google;
+      break;
     case variant === "outline":
       buttonVariant = styles.outline;
       break;

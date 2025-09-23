@@ -6,7 +6,8 @@ import {
   signOut,
   fetchUserAttributes,
   fetchAuthSession,
-} from "aws-amplify/auth";
+  signInWithRedirect,
+} from "@aws-amplify/auth";
 
 import { Amplify } from "aws-amplify";
 
@@ -14,12 +15,38 @@ import { Amplify } from "aws-amplify";
 const env = import.meta.env;
 const poolId = env.VITE_USER_POOL_ID || "";
 const clientId = env.VITE_USER_POOL_CLIENT_ID || "";
+const domain = env.VITE_USER_POOL_DOMAIN || "";
+const baseUrl = env.VITE_BASE_URL || "";
 
 Amplify.configure({
   Auth: {
     Cognito: {
+      signUpVerificationMethod: "code",
+      userAttributes: {
+        email: {
+          required: true,
+        },
+      },
+      allowGuestAccess: true,
+      loginWith: {
+        email: true,
+        oauth: {
+          domain,
+          providers: ["Google"],
+          redirectSignIn: [`${baseUrl}/login`],
+          redirectSignOut: [`${baseUrl}/login`],
+          responseType: "code",
+          scopes: [
+            "openid",
+            "email",
+            "profile",
+            "aws.cognito.signin.user.admin",
+          ],
+        },
+      },
       userPoolId: poolId,
       userPoolClientId: clientId,
+      identityPoolId: "",
     },
   },
 });
@@ -91,4 +118,10 @@ export const getToken = async () => {
   const session = await fetchAuthSession();
   const token = session.tokens?.idToken?.toString();
   return token;
+};
+
+export const loginWithGoogle = () => {
+  signInWithRedirect({
+    provider: "Google",
+  });
 };

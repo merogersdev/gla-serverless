@@ -1,22 +1,25 @@
 import { NavLink } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import Button from "../../button/Button";
 
 import { useAuthContext } from "../../../context/Auth";
-import { useLogout } from "../../../hooks/useAuth";
+import { logout } from "../../../utils/amplify";
 
 import type { NavProps } from "../../../types";
 
 import styles from "./Nav.module.scss";
 
 const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
-  const { user } = useAuthContext();
-  const logout = useLogout();
+  const { user, setUser } = useAuthContext();
 
   const firstInitial = user?.given_name?.[0] || "";
   const lastInitial = user?.family_name?.[0] || "";
 
-  const handleLogout = async () => logout.mutate();
+  const handleLogout = async () => {
+    setUser(null);
+    await logout();
+  };
 
   const openClass = menuOpen ? styles.open : "";
   return (

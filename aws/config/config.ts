@@ -17,4 +17,9 @@ export const config = {
     githubAccount: "/glas/github/account",
     githubRepo: "/glas/github/repo",
   },
+  google: {
+    // Manual Add in ca-central-1
+    clientId: "/glas/google/clientid",
+    clientSecret: "/glas/google/clientsecret",
+  },
 };

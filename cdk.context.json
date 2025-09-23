@@ -11,5 +11,7 @@
   "ssm:account=791886172857:parameterName=/glas/domain:region=us-east-1": "merogers.dev",
   "ssm:account=791886172857:parameterName=/glas/hostedzoneid:region=us-east-1": "Z1013087M1QXFL5FITII",
   "ssm:account=791886172857:parameterName=/glas/github/account:region=ca-central-1": "merogersdev",
-  "ssm:account=791886172857:parameterName=/glas/github/repo:region=ca-central-1": "gla-serverless"
+  "ssm:account=791886172857:parameterName=/glas/github/repo:region=ca-central-1": "gla-serverless",
+  "ssm:account=791886172857:parameterName=/glas/google/clientid:region=ca-central-1": "238967236928-mha99dleqejrbonefvqba5vrhpkjggju.apps.googleusercontent.com",
+  "ssm:account=791886172857:parameterName=/glas/google/clientsecret:region=ca-central-1": "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"
 }

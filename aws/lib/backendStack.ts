@@ -19,6 +19,9 @@ import {
   UserPoolClient,
   AccountRecovery,
   OAuthScope,
+  UserPoolIdentityProviderGoogle,
+  UserPoolClientIdentityProvider,
+  ProviderAttribute,
 } from "aws-cdk-lib/aws-cognito";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
@@ -32,6 +35,8 @@ interface BackendProps extends StackProps {
   subDomain: string;
   certificate: Certificate;
   zone: IHostedZone;
+  googleClientId: string;
+  googleClientSecret: string;
 }
 
 export class backendStack extends Stack {
@@ -41,7 +46,16 @@ export class backendStack extends Stack {
   constructor(scope: Construct, id: string, props: BackendProps) {
     super(scope, id, props);
 
-    const { appName, stage, domainName, subDomain, certificate, zone } = props;
+    const {
+      appName,
+      stage,
+      domainName,
+      subDomain,
+      certificate,
+      zone,
+      googleClientId,
+      googleClientSecret,
+    } = props;
 
     /* ----------------------------------------------- */
     /* --- --- --- Domain & Cert Lazy Load --- --- --- */
@@ -50,6 +64,24 @@ export class backendStack extends Stack {
     const domainParameter = StringParameter.valueFromLookup(this, domainName);
 
     const domain = Lazy.string({ produce: () => domainParameter });
+
+    const googleClientIdParam = StringParameter.valueFromLookup(
+      this,
+      googleClientId
+    );
+
+    const googleClientIdString = Lazy.string({
+      produce: () => googleClientIdParam,
+    });
+
+    const googleClientSecretParam = StringParameter.valueFromLookup(
+      this,
+      googleClientSecret
+    );
+
+    const googleClientSecretString = Lazy.string({
+      produce: () => googleClientSecretParam,
+    });
 
     // Domain for API
     const apiDomain = new DomainName(this, `${appName}-DomainName`, {
@@ -149,6 +181,7 @@ export class backendStack extends Stack {
         email: true,
         username: false,
       },
+
       standardAttributes: {
         email: {
           required: true,
@@ -172,9 +205,25 @@ export class backendStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    userPool.addDomain(`${appName}-UserPoolDomain-${stage}`, {
-      cognitoDomain: {
-        domainPrefix: `${appName.toLowerCase()}-${stage.toLowerCase()}`,
+    const poolDomain = userPool.addDomain(
+      `${appName}-UserPoolDomain-${stage}`,
+      {
+        cognitoDomain: {
+          domainPrefix: `${appName.toLowerCase()}-${stage.toLowerCase()}`,
+        },
+      }
+    );
+
+    const provider = new UserPoolIdentityProviderGoogle(this, `Google`, {
+      userPool: userPool,
+      clientId: googleClientIdString,
+      clientSecret: googleClientSecretString,
+      scopes: ["email", "openid", "profile"],
+      attributeMapping: {
+        email: ProviderAttribute.GOOGLE_EMAIL,
+        givenName: ProviderAttribute.GOOGLE_GIVEN_NAME,
+        familyName: ProviderAttribute.GOOGLE_FAMILY_NAME,
+        profilePicture: ProviderAttribute.GOOGLE_PICTURE,
       },
     });
 
@@ -188,19 +237,22 @@ export class backendStack extends Stack {
           userSrp: true,
         },
         generateSecret: false,
+        //supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE],
+
         oAuth: {
-          flows: {
-            authorizationCodeGrant: true,
-          },
-          scopes: [OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE],
-          callbackUrls: [
-            "http://localhost:5173",
-            `https://${subDomain}.${domain}`,
+          scopes: [
+            OAuthScope.EMAIL,
+            OAuthScope.OPENID,
+            OAuthScope.PROFILE,
+            OAuthScope.COGNITO_ADMIN,
           ],
+          callbackUrls: ["http://localhost:5173/login"],
+          logoutUrls: ["http://localhost:5173/login"],
         },
       }
     );
-
+    userPool.registerIdentityProvider(provider);
+    provider.node.addDependency(userPool);
     const authorizer = new CognitoUserPoolsAuthorizer(
       this,
       `${appName}-UserAuthorizer-${stage}`,

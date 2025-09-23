@@ -48,6 +48,8 @@ const backend = new backendStack(
     stage: config.app.stageName,
     subDomain: config.app.subDomain,
     domainName: config.ssm.domain,
+    googleClientId: config.google.clientId,
+    googleClientSecret: config.google.clientSecret,
   }
 );
 

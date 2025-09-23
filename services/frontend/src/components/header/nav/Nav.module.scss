@@ -53,6 +53,9 @@
   &:hover {
     color: var.$infoColor;
   }
+  &:active {
+    color: color.scale(var.$infoColor, $lightness: -15%);
+  }
   @include var.tablet {
     padding: 0;
   }
