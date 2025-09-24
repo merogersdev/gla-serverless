@@ -26,7 +26,7 @@ import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { ApiGatewayv2DomainProperties } from "aws-cdk-lib/aws-route53-targets";
 
-import type { ConfigProps } from "./config/config";
+import type { ConfigProps } from "../config/config";
 
 interface BackendProps extends StackProps {
   stage: string;
@@ -50,11 +50,13 @@ export class backendStack extends Stack {
         ? `dev.${config.SUBDOMAIN}`
         : config.SUBDOMAIN;
 
+    const appUrl = `https://${subDomain}.${domain}`;
+
     const googleClientId = config.GOOGLE_CLIENT_ID;
     const googleClientSecret = config.GOOGLE_CLIENT_SECRET;
 
-    const callbackUrl = config.COGNITO_CALLBACK_URL;
-    const signoutUrl = config.COGNITO_SIGNOUT_URL;
+    const devUrl = "http://localhost:5173/login";
+    const prodUrl = `${appUrl}/login`;
 
     /* ------------------------------- */
     /* --- --- --- Secrets --- --- --- */
@@ -211,8 +213,8 @@ export class backendStack extends Stack {
           OAuthScope.PROFILE,
           OAuthScope.COGNITO_ADMIN,
         ],
-        callbackUrls: [callbackUrl],
-        logoutUrls: [signoutUrl],
+        callbackUrls: [devUrl, prodUrl],
+        logoutUrls: [devUrl, prodUrl],
       },
     });
 

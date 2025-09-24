@@ -19,7 +19,7 @@ import { Bucket } from "aws-cdk-lib/aws-s3";
 import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { DomainName } from "aws-cdk-lib/aws-apigateway";
 
-import type { ConfigProps } from "./config/config";
+import type { ConfigProps } from "../config/config";
 
 interface PipelineProps extends StackProps {
   stage: string;
@@ -101,7 +101,7 @@ export class pipelineStack extends Stack {
 
     // CI/CD Pipeline
     new Pipeline(this, `GLAS-BuildPipeline-${stage}`, {
-      pipelineName: `GLAS-Invalidation-${stage}`,
+      pipelineName: `GLAS-Pipeline-${stage}`,
       restartExecutionOnUpdate: true,
       stages: [
         {
@@ -158,10 +158,10 @@ export class pipelineStack extends Stack {
                   VITE_USER_POOL_DOMAIN: {
                     value: userPool.userPoolProviderUrl,
                   },
-                  VITE_API_BASE_URL: {
+                  VITE_BASE_URL: {
                     value: `https://${siteDomain}`,
                   },
-                  VITE_API_API_BASE_URL: {
+                  VITE_API_BASE_URL: {
                     value: apiDomain.domainName,
                   },
                 },

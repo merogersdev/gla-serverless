@@ -12,8 +12,6 @@ export type ConfigProps = {
   GOOGLE_CLIENT_SECRET: string;
   GITHUB_ACCOUNT: string;
   GITHUB_REPO: string;
-  COGNITO_CALLBACK_URL: string;
-  COGNITO_SIGNOUT_URL: string;
 };
 
 export const getConfig = (): ConfigProps => ({
@@ -24,6 +22,4 @@ export const getConfig = (): ConfigProps => ({
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
   GITHUB_ACCOUNT: process.env.GITHUB_ACCOUNT || "",
   GITHUB_REPO: process.env.GITHUB_REPO || "",
-  COGNITO_CALLBACK_URL: process.env.COGNITO_CALLBACK_URL || "",
-  COGNITO_SIGNOUT_URL: process.env.COGNITO_SIGNOUT_URL || "",
 });

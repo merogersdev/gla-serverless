@@ -7,7 +7,7 @@ import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 
-import type { ConfigProps } from "./config/config";
+import type { ConfigProps } from "../config/config";
 
 interface FrontendProps extends StackProps {
   stage: string;

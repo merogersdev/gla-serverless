@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { backendStack } from "../lib/backendStack";
-import { frontendStack } from "../lib/frontendStack";
-import { certificateStack } from "../lib/certificateStack";
-import { pipelineStack } from "../lib/pipelineStack";
+import { backendStack } from "../lib/stacks/backend";
+import { frontendStack } from "../lib/stacks/frontend";
+import { certificateStack } from "../lib/stacks/certificate";
+import { pipelineStack } from "../lib/stacks/pipeline";
 import { getConfig } from "../lib/config/config";
 
 const app = new cdk.App();

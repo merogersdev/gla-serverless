@@ -6,7 +6,7 @@ import {
 } from "aws-cdk-lib/aws-certificatemanager";
 import { HostedZone } from "aws-cdk-lib/aws-route53";
 
-import type { ConfigProps } from "./config/config";
+import type { ConfigProps } from "../config/config";
 
 interface CertificateProps extends StackProps {
   stage: string;
