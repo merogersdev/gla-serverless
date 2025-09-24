@@ -159,7 +159,7 @@ export class pipelineStack extends Stack {
                     value: userPool.userPoolProviderUrl,
                   },
                   VITE_API_BASE_URL: {
-                    value: siteDomain,
+                    value: `https://${siteDomain}`,
                   },
                   VITE_API_API_BASE_URL: {
                     value: apiDomain.domainName,
