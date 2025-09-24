@@ -24,11 +24,11 @@ export const Register = () => {
   const [confirmCode, setConfirmCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: "michelleevarogers@gmail.com",
-    password: "abc123ABC",
-    givenName: "Michelle",
-    familyName: "Rogers",
-    confirmPassword: "abc123ABC",
+    email: "",
+    password: "",
+    givenName: "",
+    familyName: "",
+    confirmPassword: "",
   });
 
   const navigate = useNavigate();

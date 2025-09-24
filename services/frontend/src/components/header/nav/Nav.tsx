@@ -1,8 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import Button from "../../button/Button";
-
 import { useAuthContext } from "../../../context/Auth";
 import { logout } from "../../../utils/amplify";
 
@@ -17,8 +15,8 @@ const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
   const lastInitial = user?.family_name?.[0] || "";
 
   const handleLogout = async () => {
-    setUser(null);
     await logout();
+    setUser(null);
   };
 
   const openClass = menuOpen ? styles.open : "";

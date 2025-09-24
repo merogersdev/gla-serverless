@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy, CfnOutput, Lazy } from "aws-cdk-lib";
+import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { AttributeType, Table, BillingMode } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -20,23 +20,19 @@ import {
   AccountRecovery,
   OAuthScope,
   UserPoolIdentityProviderGoogle,
-  UserPoolClientIdentityProvider,
   ProviderAttribute,
 } from "aws-cdk-lib/aws-cognito";
-import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { ApiGatewayv2DomainProperties } from "aws-cdk-lib/aws-route53-targets";
 
+import type { ConfigProps } from "./config/config";
+
 interface BackendProps extends StackProps {
-  appName: string;
   stage: string;
-  domainName: string;
-  subDomain: string;
   certificate: Certificate;
   zone: IHostedZone;
-  googleClientId: string;
-  googleClientSecret: string;
+  config: ConfigProps;
 }
 
 export class backendStack extends Stack {
@@ -46,52 +42,33 @@ export class backendStack extends Stack {
   constructor(scope: Construct, id: string, props: BackendProps) {
     super(scope, id, props);
 
-    const {
-      appName,
-      stage,
-      domainName,
-      subDomain,
-      certificate,
-      zone,
-      googleClientId,
-      googleClientSecret,
-    } = props;
+    const { certificate, zone, stage, config } = props;
 
-    /* ----------------------------------------------- */
-    /* --- --- --- Domain & Cert Lazy Load --- --- --- */
-    /* ----------------------------------------------- */
+    const domain = config.DOMAIN;
+    const subDomain =
+      stage.toLowerCase() === "dev"
+        ? `dev.${config.SUBDOMAIN}`
+        : config.SUBDOMAIN;
 
-    const domainParameter = StringParameter.valueFromLookup(this, domainName);
+    const googleClientId = config.GOOGLE_CLIENT_ID;
+    const googleClientSecret = config.GOOGLE_CLIENT_SECRET;
 
-    const domain = Lazy.string({ produce: () => domainParameter });
+    const callbackUrl = config.COGNITO_CALLBACK_URL;
+    const signoutUrl = config.COGNITO_SIGNOUT_URL;
 
-    const googleClientIdParam = StringParameter.valueFromLookup(
-      this,
-      googleClientId
-    );
-
-    const googleClientIdString = Lazy.string({
-      produce: () => googleClientIdParam,
-    });
-
-    const googleClientSecretParam = StringParameter.valueFromLookup(
-      this,
-      googleClientSecret
-    );
-
-    const googleClientSecretString = Lazy.string({
-      produce: () => googleClientSecretParam,
-    });
+    /* ------------------------------- */
+    /* --- --- --- Secrets --- --- --- */
+    /* ------------------------------- */
 
     // Domain for API
-    const apiDomain = new DomainName(this, `${appName}-DomainName`, {
+    const apiDomain = new DomainName(this, `GLAS-DomainName`, {
       domainName: `api.${subDomain}.${domain}`,
       certificate,
       endpointType: EndpointType.EDGE,
     });
 
     // Route53 Alias
-    new ARecord(this, `${appName}-DomainNameApiAlias`, {
+    new ARecord(this, `GLAS-DomainNameApiAlias`, {
       recordName: `api.${subDomain}`,
       zone,
       target: RecordTarget.fromAlias(
@@ -106,8 +83,8 @@ export class backendStack extends Stack {
     /* --- --- --- DynamoDB Table --- --- --- */
     /* -------------------------------------- */
 
-    const dbTable = new Table(this, `${appName}-Table-${stage}`, {
-      tableName: `${appName}-Table-${stage}`,
+    const dbTable = new Table(this, `GLAS-Table-${stage}`, {
+      tableName: `GLAS-Table-${stage}`,
       partitionKey: { name: "PK", type: AttributeType.STRING },
       sortKey: { name: "SK", type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
@@ -118,8 +95,8 @@ export class backendStack extends Stack {
     /* --- --- --- REST API --- --- --- */
     /* -------------------------------- */
 
-    const api = new RestApi(this, `${appName}-RestAPI-${stage}`, {
-      restApiName: `${appName}-RestAPI`,
+    const api = new RestApi(this, `GLAS-RestAPI-${stage}`, {
+      restApiName: `GLAS-RestAPI-${stage}`,
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
         allowMethods: Cors.ALL_METHODS,
@@ -136,33 +113,25 @@ export class backendStack extends Stack {
     /* --- --- --- Lambda Functions --- --- --- */
     /* ---------------------------------------- */
 
-    const itemsLambda = new NodejsFunction(
-      this,
-      `${appName}-ItemsLambda-${stage}`,
-      {
-        entry: "services/backend/handlers/items.ts",
-        handler: "handler",
-        memorySize: 2048,
-        runtime: Runtime.NODEJS_22_X,
-        environment: {
-          TABLE_NAME: dbTable.tableName,
-        },
-      }
-    );
+    const itemsLambda = new NodejsFunction(this, `GLAS-ItemsLambda-${stage}`, {
+      entry: "services/backend/handlers/items.ts",
+      handler: "handler",
+      memorySize: 2048,
+      runtime: Runtime.NODEJS_22_X,
+      environment: {
+        TABLE_NAME: dbTable.tableName,
+      },
+    });
 
-    const itemLambda = new NodejsFunction(
-      this,
-      `${appName}-ItemLambda-${stage}`,
-      {
-        entry: "services/backend/handlers/item.ts",
-        handler: "handler",
-        memorySize: 2048,
-        runtime: Runtime.NODEJS_22_X,
-        environment: {
-          TABLE_NAME: dbTable.tableName,
-        },
-      }
-    );
+    const itemLambda = new NodejsFunction(this, `GLAS-ItemLambda-${stage}`, {
+      entry: "services/backend/handlers/item.ts",
+      handler: "handler",
+      memorySize: 2048,
+      runtime: Runtime.NODEJS_22_X,
+      environment: {
+        TABLE_NAME: dbTable.tableName,
+      },
+    });
 
     /* -------------------------------------------- */
     /* --- --- --- Database Permissions --- --- --- */
@@ -175,7 +144,7 @@ export class backendStack extends Stack {
     /* --- --- --- Cognito User Pool & Auth --- --- --- */
     /* ------------------------------------------------ */
 
-    const userPool = new UserPool(this, `${appName}-UserPool-${stage}`, {
+    const userPool = new UserPool(this, `GLAS-UserPool-${stage}`, {
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -205,57 +174,54 @@ export class backendStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    const poolDomain = userPool.addDomain(
-      `${appName}-UserPoolDomain-${stage}`,
-      {
-        cognitoDomain: {
-          domainPrefix: `${appName.toLowerCase()}-${stage.toLowerCase()}`,
-        },
-      }
-    );
-
-    const provider = new UserPoolIdentityProviderGoogle(this, `Google`, {
-      userPool: userPool,
-      clientId: googleClientIdString,
-      clientSecret: googleClientSecretString,
-      scopes: ["email", "openid", "profile"],
-      attributeMapping: {
-        email: ProviderAttribute.GOOGLE_EMAIL,
-        givenName: ProviderAttribute.GOOGLE_GIVEN_NAME,
-        familyName: ProviderAttribute.GOOGLE_FAMILY_NAME,
-        profilePicture: ProviderAttribute.GOOGLE_PICTURE,
+    userPool.addDomain(`GLAS-UserPoolDomain-${stage}`, {
+      cognitoDomain: {
+        domainPrefix: `glas-${stage.toLowerCase()}`,
       },
     });
 
-    const userPoolClient = new UserPoolClient(
+    const provider = new UserPoolIdentityProviderGoogle(
       this,
-      `${appName}-Client-${stage}`,
+      `GLAS-IDP-Google`,
       {
         userPool: userPool,
-        authFlows: {
-          userPassword: true,
-          userSrp: true,
-        },
-        generateSecret: false,
-        //supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE],
-
-        oAuth: {
-          scopes: [
-            OAuthScope.EMAIL,
-            OAuthScope.OPENID,
-            OAuthScope.PROFILE,
-            OAuthScope.COGNITO_ADMIN,
-          ],
-          callbackUrls: ["http://localhost:5173/login"],
-          logoutUrls: ["http://localhost:5173/login"],
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+        scopes: ["email", "openid", "profile"],
+        attributeMapping: {
+          email: ProviderAttribute.GOOGLE_EMAIL,
+          givenName: ProviderAttribute.GOOGLE_GIVEN_NAME,
+          familyName: ProviderAttribute.GOOGLE_FAMILY_NAME,
+          profilePicture: ProviderAttribute.GOOGLE_PICTURE,
         },
       }
     );
+
+    const userPoolClient = new UserPoolClient(this, `GLAS-Client-${stage}`, {
+      userPool: userPool,
+      authFlows: {
+        userPassword: true,
+        userSrp: true,
+      },
+      generateSecret: false,
+      oAuth: {
+        scopes: [
+          OAuthScope.EMAIL,
+          OAuthScope.OPENID,
+          OAuthScope.PROFILE,
+          OAuthScope.COGNITO_ADMIN,
+        ],
+        callbackUrls: [callbackUrl],
+        logoutUrls: [signoutUrl],
+      },
+    });
+
     userPool.registerIdentityProvider(provider);
     provider.node.addDependency(userPool);
+
     const authorizer = new CognitoUserPoolsAuthorizer(
       this,
-      `${appName}-UserAuthorizer-${stage}`,
+      `GLAS-UserAuthorizer-${stage}`,
       {
         cognitoUserPools: [userPool],
         identitySource: "method.request.header.Authorization",
@@ -263,11 +229,14 @@ export class backendStack extends Stack {
     );
 
     // outputs:
-    new CfnOutput(this, `${appName}-UserPoolId-${stage}`, {
+    new CfnOutput(this, `GLAS-UserPoolId-${stage}`, {
       value: userPool.userPoolId,
     });
-    new CfnOutput(this, `${appName}-UserPoolClientId-${stage}`, {
+    new CfnOutput(this, `GLAS-UserPoolClientId-${stage}`, {
       value: userPoolClient.userPoolClientId,
+    });
+    new CfnOutput(this, `GLAS-APIDomainName-${stage}`, {
+      value: apiDomain.domainName,
     });
 
     /* -------------------------------------------------- */
@@ -301,7 +270,7 @@ export class backendStack extends Stack {
     /* --- --- --- Base Path Mapping --- --- --- */
     /* ----------------------------------------- */
 
-    new BasePathMapping(this, `${appName}-BasePathMapping`, {
+    new BasePathMapping(this, `GLAS-BasePathMapping`, {
       domainName: apiDomain,
       restApi: api,
     });

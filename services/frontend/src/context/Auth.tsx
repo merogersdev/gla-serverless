@@ -25,9 +25,14 @@ const AuthContextProvider = ({ children }: NodeProps) => {
   useEffect(() => {
     const unsubscribe = Hub.listen("auth", ({ payload }) => {
       switch (payload.event) {
+        // case "signedIn":
+        //   toast.success("Sign in with Email Successful");
+        //   break;
+        // case "signedOut":
+        //   toast.success("Sign out successful");
+        //   break;
         case "signInWithRedirect":
           getUser();
-          toast.success("Sign in with Google Successful");
           break;
         case "signInWithRedirect_failure":
           toast.error("Failed to sign in with Google");

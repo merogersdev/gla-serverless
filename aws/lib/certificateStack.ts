@@ -1,17 +1,16 @@
-import { Stack, StackProps, Lazy } from "aws-cdk-lib";
+import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
   Certificate,
   CertificateValidation,
 } from "aws-cdk-lib/aws-certificatemanager";
 import { HostedZone } from "aws-cdk-lib/aws-route53";
-import { StringParameter } from "aws-cdk-lib/aws-ssm";
+
+import type { ConfigProps } from "./config/config";
 
 interface CertificateProps extends StackProps {
-  domainName: string;
-  subDomain: string;
-  hostedZoneId: string;
-  appName: string;
+  stage: string;
+  config: ConfigProps;
 }
 
 export class certificateStack extends Stack {
@@ -20,15 +19,14 @@ export class certificateStack extends Stack {
   constructor(scope: Construct, id: string, props: CertificateProps) {
     super(scope, id, props);
 
-    const { domainName, subDomain, hostedZoneId, appName } = props;
+    const { stage, config } = props;
 
-    const domainParameter = StringParameter.valueFromLookup(this, domainName);
-
-    const domain = Lazy.string({ produce: () => domainParameter });
-
-    const zoneParameter = StringParameter.valueFromLookup(this, hostedZoneId);
-
-    const zone = Lazy.string({ produce: () => zoneParameter });
+    const zoneId = config.ZONE_ID;
+    const domain = config.DOMAIN;
+    const subDomain =
+      stage.toLowerCase() === "dev"
+        ? `dev.${config.SUBDOMAIN}`
+        : config.SUBDOMAIN;
 
     /* --------------------------------------- */
     /* --- --- --- SSL Certificate --- --- --- */
@@ -36,21 +34,21 @@ export class certificateStack extends Stack {
 
     const appZone = HostedZone.fromHostedZoneAttributes(
       this,
-      `${appName}-AppDomain`,
+      "GLAS-AppDomain",
       {
-        hostedZoneId: zone,
+        hostedZoneId: zoneId,
         zoneName: domain,
       }
     );
 
     // Generate SSL Certificate
-    const appCertificate = new Certificate(this, `${appName}-AppCertificate`, {
+    const appCertificate = new Certificate(this, "GLAS-AppCertificate", {
       domainName: domain,
       subjectAlternativeNames: [
         `${subDomain}.${domain}`,
         `api.${subDomain}.${domain}`,
       ],
-      certificateName: `${appName}-AppCertificate`,
+      certificateName: "GLAS-AppCertificate",
       validation: CertificateValidation.fromDns(appZone),
     });
 

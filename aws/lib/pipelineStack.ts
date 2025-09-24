@@ -1,6 +1,5 @@
-import { Stack, StackProps, SecretValue, Lazy } from "aws-cdk-lib";
+import { SecretValue, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-
 import { Distribution } from "aws-cdk-lib/aws-cloudfront";
 import {
   PipelineProject,
@@ -17,21 +16,19 @@ import {
 } from "aws-cdk-lib/aws-codepipeline-actions";
 import { Artifact, Pipeline } from "aws-cdk-lib/aws-codepipeline";
 import { Bucket } from "aws-cdk-lib/aws-s3";
-import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { DomainName } from "aws-cdk-lib/aws-apigateway";
 
+import type { ConfigProps } from "./config/config";
+
 interface PipelineProps extends StackProps {
-  appName: string;
   stage: string;
   distribution: Distribution;
   bucket: Bucket;
-  githubToken: string;
-  githubAccount: string;
-  githubRepo: string;
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   apiDomain: DomainName;
+  config: ConfigProps;
 }
 
 export class pipelineStack extends Stack {
@@ -41,25 +38,26 @@ export class pipelineStack extends Stack {
     const {
       distribution,
       bucket,
-      githubAccount,
-      githubRepo,
-      appName,
       stage,
       userPool,
       userPoolClient,
       apiDomain,
+      config,
     } = props;
 
-    const githubAccountParam = StringParameter.valueFromLookup(
-      this,
-      githubAccount
-    );
+    const githubAccount = config.GITHUB_ACCOUNT;
+    const githubRepo = config.GITHUB_REPO;
+    const domain = config.DOMAIN;
+    const subDomain =
+      stage.toLowerCase() === "dev"
+        ? `dev.${config.SUBDOMAIN}`
+        : config.SUBDOMAIN;
 
-    const account = Lazy.string({ produce: () => githubAccountParam });
+    const branch = stage.toLowerCase() === "prod" ? "main" : "dev";
 
-    const githubRepoParam = StringParameter.valueFromLookup(this, githubRepo);
+    const githubToken = SecretValue.secretsManager("github-token");
 
-    const repo = Lazy.string({ produce: () => githubRepoParam });
+    const siteDomain = `${subDomain}.${domain}`;
 
     /* ----------------------------------------- */
     /* --- --- --- CodeBuild Project --- --- --- */
@@ -68,7 +66,7 @@ export class pipelineStack extends Stack {
     // Cloudfront Invalidation Step
     const invalidateBuildProject = new PipelineProject(
       this,
-      `${appName}-Invalidation-${stage}`,
+      `GLAS-Invalidation-${stage}`,
       {
         buildSpec: BuildSpec.fromObject({
           version: "0.2",
@@ -98,12 +96,12 @@ export class pipelineStack extends Stack {
     );
 
     // Code and Build Artifacts
-    const githubSource = new Artifact(`${appName}-GHSource`);
-    const buildArtifact = new Artifact(`${appName}-BuildArtifact-${stage}`);
+    const githubSource = new Artifact(`GLAS-GHSource`);
+    const buildArtifact = new Artifact(`GLAS-BuildArtifact-${stage}`);
 
     // CI/CD Pipeline
-    new Pipeline(this, `${appName}-BuildPipeline-${stage}`, {
-      pipelineName: `${appName}-Invalidation-${stage}`,
+    new Pipeline(this, `GLAS-BuildPipeline-${stage}`, {
+      pipelineName: `GLAS-Invalidation-${stage}`,
       restartExecutionOnUpdate: true,
       stages: [
         {
@@ -112,11 +110,11 @@ export class pipelineStack extends Stack {
             // Pull Source From GitHub Repo
             new GitHubSourceAction({
               actionName: "GitHub_Source",
-              owner: account,
-              repo: repo,
-              oauthToken: SecretValue.secretsManager("github-token"),
+              owner: githubAccount,
+              repo: githubRepo,
+              oauthToken: githubToken,
               output: githubSource,
-              branch: "main",
+              branch,
             }),
           ],
         },
@@ -125,47 +123,49 @@ export class pipelineStack extends Stack {
           actions: [
             // Build Next.js App from GitHub Source
             new CodeBuildAction({
-              actionName: `${appName}-Build-${stage}`,
-              project: new PipelineProject(
-                this,
-                `${appName}-BuildProject-${stage}`,
-                {
-                  environment: {
-                    buildImage: LinuxBuildImage.STANDARD_7_0,
-                    computeType: ComputeType.SMALL,
-                  },
-                  projectName: `${appName}-Project-${stage}`,
-                  buildSpec: BuildSpec.fromObject({
-                    version: "0.2",
-                    phases: {
-                      install: {
-                        "runtime-versions": {
-                          nodejs: 22,
-                        },
-                        commands: ["npm run install-frontend"],
+              actionName: `GLAS-Build-${stage}`,
+              project: new PipelineProject(this, `GLAS-BuildProject-${stage}`, {
+                environment: {
+                  buildImage: LinuxBuildImage.STANDARD_7_0,
+                  computeType: ComputeType.SMALL,
+                },
+                projectName: `GLAS-Project-${stage}`,
+                buildSpec: BuildSpec.fromObject({
+                  version: "0.2",
+                  phases: {
+                    install: {
+                      "runtime-versions": {
+                        nodejs: 22,
                       },
-                      build: {
-                        commands: ["npm run build-frontend"],
-                      },
+                      commands: ["npm run install-frontend"],
                     },
-                    artifacts: {
-                      // Important: files HAS to be first
-                      files: ["**/*"],
-                      "discard-paths": "no",
-                      "base-directory": "services/frontend/build",
-                    },
-                  }),
-                  environmentVariables: {
-                    VITE_USER_POOL_ID: { value: userPool.userPoolId },
-                    VITE_USER_POOL_CLIENT_ID: {
-                      value: userPoolClient.userPoolClientId,
-                    },
-                    VITE_API_BASE_URL: {
-                      value: apiDomain.domainName,
+                    build: {
+                      commands: ["npm run build-frontend"],
                     },
                   },
-                }
-              ),
+                  artifacts: {
+                    // Important: files HAS to be first
+                    files: ["**/*"],
+                    "discard-paths": "no",
+                    "base-directory": "services/frontend/build",
+                  },
+                }),
+                environmentVariables: {
+                  VITE_USER_POOL_ID: { value: userPool.userPoolId },
+                  VITE_USER_POOL_CLIENT_ID: {
+                    value: userPoolClient.userPoolClientId,
+                  },
+                  VITE_USER_POOL_DOMAIN: {
+                    value: userPool.userPoolProviderUrl,
+                  },
+                  VITE_API_BASE_URL: {
+                    value: siteDomain,
+                  },
+                  VITE_API_API_BASE_URL: {
+                    value: apiDomain.domainName,
+                  },
+                },
+              }),
               input: githubSource,
               outputs: [buildArtifact],
             }),
@@ -175,7 +175,7 @@ export class pipelineStack extends Stack {
           stageName: "Approve",
           actions: [
             new ManualApprovalAction({
-              actionName: `${appName}-ApproveDeployment-${stage}`,
+              actionName: `GLAS-ApproveDeployment-${stage}`,
             }),
           ],
         },
@@ -184,14 +184,14 @@ export class pipelineStack extends Stack {
           actions: [
             // 1. Deploy Next.js App to S3
             new S3DeployAction({
-              actionName: `${appName}-DeployToS3-${stage}`,
+              actionName: `GLAS-DeployToS3-${stage}`,
               input: buildArtifact,
               bucket,
               runOrder: 1,
             }),
             // 2. Create CloudFront Invalidation
             new CodeBuildAction({
-              actionName: `${appName}-CodeBuildInvalidate-${stage}`,
+              actionName: `GLAS-CodeBuildInvalidate-${stage}`,
               project: invalidateBuildProject,
               input: buildArtifact,
               runOrder: 2,

@@ -19,8 +19,8 @@ export const Login = () => {
 
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const [formData, setFormData] = useState({
-    email: "michelleevarogers@gmail.com",
-    password: "abc123ABC",
+    email: "",
+    password: "",
   });
 
   const navigate = useNavigate();
