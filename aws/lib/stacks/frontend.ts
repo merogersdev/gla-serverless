@@ -48,6 +48,7 @@ export class frontendStack extends Stack {
       bucketName: siteDomain,
       autoDeleteObjects: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const originAccessIdentity = new OriginAccessIdentity(
