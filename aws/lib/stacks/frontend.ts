@@ -1,7 +1,7 @@
 import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { Distribution, OriginAccessIdentity } from "aws-cdk-lib/aws-cloudfront";
-import { Bucket } from "aws-cdk-lib/aws-s3";
+import { Bucket, BlockPublicAccess } from "aws-cdk-lib/aws-s3";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
@@ -42,11 +42,18 @@ export class frontendStack extends Stack {
 
     const frontendBucket = new Bucket(this, `GLA-FrontendBucket-${stage}`, {
       bucketName: siteDomain,
-      websiteIndexDocument: "index.html",
-      websiteErrorDocument: "404.html",
-      publicReadAccess: false,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      publicReadAccess: true,
+      blockPublicAccess: new BlockPublicAccess({
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      }),
+      versioned: true,
+      websiteIndexDocument: "index.html",
+      websiteErrorDocument: "index.html",
     });
 
     const originAccessIdentity = new OriginAccessIdentity(

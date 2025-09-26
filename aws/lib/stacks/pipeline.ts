@@ -48,12 +48,13 @@ export class pipelineStack extends Stack {
     const githubAccount = config.GITHUB_ACCOUNT;
     const githubRepo = config.GITHUB_REPO;
     const domain = config.DOMAIN;
-    const subDomain =
-      stage.toLowerCase() === "dev"
-        ? `dev.${config.SUBDOMAIN}`
-        : config.SUBDOMAIN;
 
-    const branch = stage.toLowerCase() === "prod" ? "main" : "dev";
+    const lowerStage = stage.toLowerCase();
+
+    const subDomain =
+      lowerStage === "dev" ? `dev.${config.SUBDOMAIN}` : config.SUBDOMAIN;
+
+    const branch = lowerStage === "prod" ? "main" : "dev";
 
     const githubToken = SecretValue.secretsManager("github-token");
 
@@ -156,7 +157,7 @@ export class pipelineStack extends Stack {
                     value: userPoolClient.userPoolClientId,
                   },
                   VITE_USER_POOL_DOMAIN: {
-                    value: userPool.userPoolProviderUrl,
+                    value: `glas-${lowerStage}.auth.${this.region}.amazoncognito.com`,
                   },
                   VITE_BASE_URL: {
                     value: `https://${siteDomain}`,
