@@ -163,7 +163,7 @@ export class pipelineStack extends Stack {
                     value: `https://${siteDomain}`,
                   },
                   VITE_API_BASE_URL: {
-                    value: apiDomain.domainName,
+                    value: `https://${apiDomain.domainName}`,
                   },
                 },
               }),

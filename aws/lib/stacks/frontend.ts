@@ -51,13 +51,13 @@ export class frontendStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    const originAccessIdentity = new OriginAccessIdentity(
-      this,
-      `GLA-AccessIdentity-${stage}`,
-      {}
-    );
+    // const originAccessIdentity = new OriginAccessIdentity(
+    //   this,
+    //   `GLA-AccessIdentity-${stage}`,
+    //   {}
+    // );
 
-    frontendBucket.grantRead(originAccessIdentity);
+    // frontendBucket.grantRead(originAccessIdentity);
 
     /* -------------------------------------- */
     /* --- --- --- CF Distribution--- --- --- */
@@ -74,6 +74,11 @@ export class frontendStack extends Stack {
       errorResponses: [
         {
           httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: "/index.html",
+        },
+        {
+          httpStatus: 403,
           responseHttpStatus: 200,
           responsePagePath: "/index.html",
         },
