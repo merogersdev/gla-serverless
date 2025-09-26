@@ -1,6 +1,10 @@
 import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { Distribution, OriginAccessIdentity } from "aws-cdk-lib/aws-cloudfront";
+import {
+  Distribution,
+  OriginAccessIdentity,
+  ViewerProtocolPolicy,
+} from "aws-cdk-lib/aws-cloudfront";
 import { Bucket, BlockPublicAccess } from "aws-cdk-lib/aws-s3";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
@@ -42,18 +46,8 @@ export class frontendStack extends Stack {
 
     const frontendBucket = new Bucket(this, `GLA-FrontendBucket-${stage}`, {
       bucketName: siteDomain,
-      removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      publicReadAccess: true,
-      blockPublicAccess: new BlockPublicAccess({
-        blockPublicAcls: false,
-        blockPublicPolicy: false,
-        ignorePublicAcls: false,
-        restrictPublicBuckets: false,
-      }),
-      versioned: true,
-      websiteIndexDocument: "index.html",
-      websiteErrorDocument: "index.html",
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
 
     const originAccessIdentity = new OriginAccessIdentity(
@@ -74,7 +68,15 @@ export class frontendStack extends Stack {
       defaultRootObject: "index.html",
       defaultBehavior: {
         origin: S3BucketOrigin.withOriginAccessControl(frontendBucket),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
+      errorResponses: [
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: "/index.html",
+        },
+      ],
     });
 
     /* -------------------------------------------- */
