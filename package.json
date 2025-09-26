@@ -11,6 +11,9 @@
     "cdk": "cdk",
     "install-frontend": "cd ./services/frontend && npm ci",
     "build-frontend": "cd ./services/frontend && npm run build",
+    "develop-frontend": "cd ./services/frontend && npm run dev",
+    "synth-dev": "cdk synth -c STAGE=dev",
+    "synth-prod": "cdk synth -c STAGE=prod",
     "deploy-dev": "cdk deploy --require-approval never -c STAGE=dev --all",
     "deploy-prod": "cdk deploy --require-approval never -c STAGE=prod --all"
   },
@@ -30,7 +33,7 @@
     "@types/aws-lambda": "^8.10.147",
     "aws-cdk-lib": "2.178.2",
     "constructs": "^10.0.0",
-    "dotenv": "^16.6.1",
+    "dotenv": "^16.4.7",
     "zod": "^3.24.2"
   }
 }
