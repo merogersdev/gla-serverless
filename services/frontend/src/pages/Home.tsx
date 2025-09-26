@@ -3,7 +3,10 @@ import { Navigate } from "react-router-dom";
 
 import List from "../components/item/list/List";
 import Add from "../components/item/add/Add";
-import { MiniContainer } from "../components/container/Container";
+import {
+  MiniContainer,
+  LoadingContainer,
+} from "../components/container/Container";
 import Spinner from "../components/spinner/Spinner";
 import { getItems } from "../utils/fetch";
 import { useAuthContext } from "../context/Auth";
@@ -25,11 +28,16 @@ export const Home = () => {
     },
   });
 
-  if (isItemsLoading || !items) return <Spinner />;
+  if (isItemsLoading || !items)
+    return (
+      <LoadingContainer>
+        <Spinner />
+      </LoadingContainer>
+    );
 
   return (
     <MiniContainer>
-      <Add />
+      <Add items={items} />
       <List items={items} message="Yay! No more groceries!" />
     </MiniContainer>
   );

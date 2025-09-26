@@ -1,18 +1,16 @@
 import { FormEvent, useState, useRef, useEffect } from "react";
-
 import { FaPlus } from "react-icons/fa6";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 import { addItem } from "../../../utils/fetch";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { nameRegex } from "../../../utils/validate";
 
-import { toast } from "react-toastify";
+import type { ItemProps } from "../../../types";
 
 import styles from "./Add.module.scss";
 
-const Add = () => {
+const Add = ({ items }: { items: ItemProps[] }) => {
   const [newItem, setNewItem] = useState("");
 
   const queryClient = useQueryClient();
@@ -21,14 +19,26 @@ const Add = () => {
   const handleChange = (e: any) => setNewItem(e.target.value);
 
   const addItemMutation = useMutation({
-    mutationFn: () => addItem(newItem.toLowerCase()),
+    mutationFn: () => {
+      const alreadyExists = items.some(
+        (item) => item.VALUE.toLowerCase() === newItem.toLowerCase()
+      );
+
+      if (alreadyExists) throw new Error("Item Already Exists");
+
+      return addItem(newItem.toLowerCase());
+    },
     onSuccess: async () => {
       setNewItem("");
       queryClient.invalidateQueries({ queryKey: ["items"] });
       toast.success("Item added");
       newItemRef?.current?.focus();
     },
-    onError: async () => {
+    onError: async (error) => {
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
       toast.error("Unable to add item");
     },
   });

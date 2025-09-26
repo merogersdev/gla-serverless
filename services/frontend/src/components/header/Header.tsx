@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Container from "../container/Container";
 import { Link } from "react-router-dom";
-import { FaBars, FaXmark, FaBowlFood } from "react-icons/fa6";
+import { FaBars, FaXmark, FaCloud } from "react-icons/fa6";
 
 import Nav from "./nav/Nav";
 
@@ -27,7 +27,7 @@ const Header = ({ title = "GLA Serverless" }: HeaderProps) => {
       <Container>
         <div className={styles.content}>
           <Link to="/" className={styles.logo}>
-            <FaBowlFood className={styles.favicon} />
+            <FaCloud className={styles.favicon} />
             <span className={styles.title}>{title}</span>
           </Link>
           <Nav links={navLinks} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />

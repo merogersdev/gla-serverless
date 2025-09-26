@@ -50,6 +50,8 @@ export type ButtonProps = {
 export type ItemProps = {
   VALUE: string;
   SK: string;
+  PK: string;
+  CHECKED: boolean;
 };
 
 export type ItemListProps = {

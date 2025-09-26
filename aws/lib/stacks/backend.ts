@@ -55,7 +55,7 @@ export class backendStack extends Stack {
     const googleClientId = config.GOOGLE_CLIENT_ID;
     const googleClientSecret = config.GOOGLE_CLIENT_SECRET;
 
-    const devUrl = "http://localhost:5173/login";
+    const devUrl = "http://127.0.0.1:5173/login";
     const prodUrl = `${appUrl}/login`;
 
     /* ------------------------------- */

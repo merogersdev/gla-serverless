@@ -11,9 +11,6 @@ import styles from "./Nav.module.scss";
 const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
   const { user, setUser } = useAuthContext();
 
-  const firstInitial = user?.given_name?.[0] || "";
-  const lastInitial = user?.family_name?.[0] || "";
-
   const handleLogout = async () => {
     await logout();
     setUser(null);
@@ -26,10 +23,20 @@ const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
         {user ? (
           <li className={styles.li}>
             <div className={styles.info}>
-              <div className={styles.avatar}>
-                {firstInitial}
-                {lastInitial}
-              </div>
+              {user.picture ? (
+                <div className={styles.picture}>
+                  <img
+                    src={user.picture}
+                    alt="User Picture"
+                    className={styles.picture}
+                  />
+                </div>
+              ) : (
+                <div className={styles.avatar}>
+                  {user?.given_name?.[0] || ""}
+                  {user?.family_name?.[0] || ""}
+                </div>
+              )}
               <div className={styles.user}>Hi, {user.given_name}</div>
               <Button variant="outline" onClick={handleLogout} type="button">
                 Logout
