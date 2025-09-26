@@ -13,14 +13,14 @@ const List = ({ items, message = "No items to display" }: ItemListProps) => {
     <ul className={styles.ul}>
       <AnimatePresence>
         {items &&
-          items.map(({ SK, VALUE }) => (
+          items.map(({ SK, PK, CHECKED, VALUE }) => (
             <motion.div
               key={SK}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Item SK={SK} VALUE={VALUE} />
+              <Item SK={SK} VALUE={VALUE} PK={PK} CHECKED={CHECKED} />
             </motion.div>
           ))}
       </AnimatePresence>
