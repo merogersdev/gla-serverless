@@ -4,5 +4,6 @@
   padding: 2rem 0;
   background-color: var.$backgroundColor;
   display: flex;
+  min-height: fit-content;
   height: 100%;
 }

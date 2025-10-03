@@ -7,10 +7,12 @@ import type { ItemProps } from "../../types";
 import { capitalizeName } from "../../utils/format";
 
 import styles from "./Item.module.scss";
-import { deleteItem } from "../../utils/fetch";
+import { deleteItem, updateItem } from "../../utils/fetch";
 
-const Item = ({ VALUE }: ItemProps) => {
+const Item = ({ VALUE, SK, CHECKED }: ItemProps) => {
   const queryClient = useQueryClient();
+
+  const itemId = SK.slice(5);
 
   const deleteItemMutation = useMutation({
     mutationFn: deleteItem,
@@ -24,14 +26,39 @@ const Item = ({ VALUE }: ItemProps) => {
     },
   });
 
-  const handleDelete = async (value: string) => {
-    deleteItemMutation.mutate(value);
+  const updateItemMutation = useMutation({
+    mutationFn: ({ id, checked }: { id: string; checked: boolean }) =>
+      updateItem(id, checked),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Item Updated");
+    },
+    onError: async (error) => {
+      console.error(error);
+      toast.error("Unable to add item");
+    },
+  });
+
+  const handleCheckMutation = (id: string, checked: boolean) => {
+    updateItemMutation.mutate({ id, checked });
   };
+
+  const handleDelete = async (id: string) => {
+    deleteItemMutation.mutate(id);
+  };
+
+  const textStyles = `${styles.text} ${CHECKED ? styles.checked : ""}`;
 
   return (
     <li className={styles.li}>
-      {capitalizeName(VALUE)}
-      <button onClick={() => handleDelete(VALUE)} className={styles.button}>
+      <div
+        className={textStyles}
+        onClick={() => handleCheckMutation(itemId, !CHECKED)}
+      >
+        {capitalizeName(VALUE)}
+      </div>
+
+      <button onClick={() => handleDelete(itemId)} className={styles.button}>
         <FaXmark className={styles.icon} />
       </button>
     </li>

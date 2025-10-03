@@ -46,11 +46,11 @@ export const addItem = async (value: string) => {
   }
 };
 
-export const deleteItem = async (value: string) => {
+export const deleteItem = async (id: string) => {
   const token = await getToken();
 
   try {
-    const result = await fetch(`${baseUrl}/item/${value}`, {
+    const result = await fetch(`${baseUrl}/item/${id}`, {
       method: "DELETE",
       mode: "cors",
       headers: {
@@ -59,6 +59,30 @@ export const deleteItem = async (value: string) => {
     });
 
     const data = await result.json();
+    return data.payload.Items;
+  } catch (error) {
+    console.error(error);
+    toast.error("Could not delete item");
+  }
+};
+
+export const updateItem = async (id: string, checked: boolean) => {
+  const token = await getToken();
+
+  try {
+    const result = await fetch(`${baseUrl}/item/${id}`, {
+      method: "PATCH",
+      mode: "cors",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        checked,
+      }),
+    });
+
+    const data = await result.json();
+    console.log(data);
     return data.payload.Items;
   } catch (error) {
     console.error(error);

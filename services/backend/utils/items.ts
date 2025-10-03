@@ -5,6 +5,7 @@ import {
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { randomUUID } from "crypto";
 
 import { getClient } from "../config/db";
 
@@ -43,9 +44,11 @@ export const createItem = async (email: string, value: string) => {
 
   if (!itemValue) throw new Error("Invalid Item");
 
+  const itemId = randomUUID();
+
   const newItem = {
     PK: `USER#${email}`,
-    SK: `ITEM#${itemValue}`,
+    SK: `ITEM#${itemId}`,
     CHECKED: false,
     VALUE: itemValue,
   };
@@ -112,12 +115,12 @@ export const deleteItem = async (email: string, id: string) => {
 export const updateItem = async (
   email: string,
   id: string,
-  body: { checked: boolean }
+  checked: boolean
 ) => {
   const client = getClient();
-  if (!email || !id || !body) throw new Error("Cannot Update Item");
 
-  if (!body.checked) return apiResponse(400, "Invalid Update of Item", null);
+  if (!email || !id) throw new Error("Cannot Update Item");
+  if (checked === undefined) throw new Error("No Checked Value");
 
   const item = {
     PK: `USER#${email}`,
@@ -127,10 +130,11 @@ export const updateItem = async (
   const updateItem = new UpdateCommand({
     TableName: process.env.TABLE_NAME,
     Key: item,
-    UpdateExpression: `SET CHECKED = :CHECKED`,
+    UpdateExpression: `set CHECKED = :checked`,
     ExpressionAttributeValues: {
-      ":CHECKED": body.checked,
+      ":checked": checked,
     },
+    ReturnValues: "ALL_NEW",
   });
 
   const result = await client.send(updateItem);

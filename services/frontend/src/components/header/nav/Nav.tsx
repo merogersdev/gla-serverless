@@ -24,7 +24,7 @@ const Nav = ({ links, menuOpen, setMenuOpen }: NavProps) => {
           <li className={styles.li}>
             <div className={styles.info}>
               {user.picture ? (
-                <div className={styles.picture}>
+                <div className={styles.container}>
                   <img
                     src={user.picture}
                     alt="User Picture"

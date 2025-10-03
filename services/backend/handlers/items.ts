@@ -21,6 +21,7 @@ export const handler: Handler = async (event) => {
         return apiResponse(400, "Error: Invalid Method", null);
     }
   } catch (error) {
+    console.error(error);
     return apiResponse(400, "Error: Could not complete task", error);
   }
 };
