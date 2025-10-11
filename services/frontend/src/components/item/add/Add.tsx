@@ -53,10 +53,12 @@ const Add = ({ items }: { items: ItemProps[] }) => {
     setIsAddPending(true);
     if (newItem === "") {
       toast.error("Item cannot be blank");
+      setIsAddPending(false);
       return;
     }
     if (!nameRegex.test(newItem)) {
       toast.error("Item names must not contain special characters");
+      setIsAddPending(false);
       return;
     }
 

@@ -46,7 +46,7 @@
     background-color: color.scale(var.$secondaryColor, $lightness: 5%);
   }
   &:disabled {
-    background-color: var.$mutedColor;
+    background-color: color.scale(var.$secondaryColor, $lightness: 15%);
   }
   margin: 0 0 0 auto;
 }
