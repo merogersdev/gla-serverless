@@ -9,7 +9,7 @@ import { capitalizeName } from "../../utils/format";
 import styles from "./Item.module.scss";
 import { deleteItem, updateItem } from "../../utils/fetch";
 
-const Item = ({ VALUE, SK, CHECKED }: ItemProps) => {
+const Item = ({ VALUE, SK, CHECKED, isPending, setIsPending }: ItemProps) => {
   const queryClient = useQueryClient();
 
   const itemId = SK.slice(5);
@@ -24,6 +24,9 @@ const Item = ({ VALUE, SK, CHECKED }: ItemProps) => {
       console.error(error);
       toast.error("Unable to add item");
     },
+    onSettled: () => {
+      setIsPending(false);
+    },
   });
 
   const updateItemMutation = useMutation({
@@ -37,13 +40,20 @@ const Item = ({ VALUE, SK, CHECKED }: ItemProps) => {
       console.error(error);
       toast.error("Unable to add item");
     },
+    onSettled: () => {
+      setIsPending(false);
+    },
   });
 
   const handleCheckMutation = (id: string, checked: boolean) => {
+    if (isPending) return;
+    setIsPending(true);
     updateItemMutation.mutate({ id, checked });
   };
 
   const handleDelete = async (id: string) => {
+    if (isPending) return;
+    setIsPending(true);
     deleteItemMutation.mutate(id);
   };
 
@@ -58,7 +68,11 @@ const Item = ({ VALUE, SK, CHECKED }: ItemProps) => {
         {capitalizeName(VALUE)}
       </div>
 
-      <button onClick={() => handleDelete(itemId)} className={styles.button}>
+      <button
+        onClick={() => handleDelete(itemId)}
+        className={styles.button}
+        disabled={isPending}
+      >
         <FaXmark className={styles.icon} />
       </button>
     </li>

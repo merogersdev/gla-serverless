@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import Item from "../Item";
@@ -7,6 +8,7 @@ import type { ItemListProps, ItemProps } from "../../../types";
 import styles from "./List.module.scss";
 
 const List = ({ items, message = "No items to display" }: ItemListProps) => {
+  const [isPending, setIsPending] = useState(false);
   if (items && items.length === 0)
     return <div className={styles.message}>{message}</div>;
 
@@ -45,7 +47,14 @@ const List = ({ items, message = "No items to display" }: ItemListProps) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <Item SK={SK} VALUE={VALUE} PK={PK} CHECKED={CHECKED} />
+                <Item
+                  SK={SK}
+                  VALUE={VALUE}
+                  PK={PK}
+                  CHECKED={CHECKED}
+                  isPending={isPending}
+                  setIsPending={setIsPending}
+                />
               </motion.div>
             ))}
         </AnimatePresence>
@@ -60,7 +69,14 @@ const List = ({ items, message = "No items to display" }: ItemListProps) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <Item SK={SK} VALUE={VALUE} PK={PK} CHECKED={CHECKED} />
+                <Item
+                  SK={SK}
+                  VALUE={VALUE}
+                  PK={PK}
+                  CHECKED={CHECKED}
+                  isPending={isPending}
+                  setIsPending={setIsPending}
+                />
               </motion.div>
             ))}
         </AnimatePresence>

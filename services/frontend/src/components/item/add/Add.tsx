@@ -12,6 +12,7 @@ import styles from "./Add.module.scss";
 
 const Add = ({ items }: { items: ItemProps[] }) => {
   const [newItem, setNewItem] = useState("");
+  const [isAddPending, setIsAddPending] = useState(false);
 
   const queryClient = useQueryClient();
   const newItemRef = useRef<HTMLInputElement | null>(null);
@@ -41,10 +42,15 @@ const Add = ({ items }: { items: ItemProps[] }) => {
       }
       toast.error("Unable to add item");
     },
+    onSettled: () => {
+      setIsAddPending(false);
+    },
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (isAddPending) return;
+    setIsAddPending(true);
     if (newItem === "") {
       toast.error("Item cannot be blank");
       return;
@@ -53,6 +59,7 @@ const Add = ({ items }: { items: ItemProps[] }) => {
       toast.error("Item names must not contain special characters");
       return;
     }
+
     addItemMutation.mutate();
   };
 
@@ -70,7 +77,7 @@ const Add = ({ items }: { items: ItemProps[] }) => {
         aria-label="Add Item"
         ref={newItemRef}
       />
-      <button className={styles.button} type="submit">
+      <button className={styles.button} type="submit" disabled={isAddPending}>
         <FaPlus className={styles.icon} />
       </button>
     </form>
