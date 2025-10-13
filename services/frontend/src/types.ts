@@ -1,4 +1,4 @@
-import type { ReactNode, SetStateAction, Dispatch } from "react";
+import type { ReactNode } from "react";
 import type { IconType } from "react-icons/lib";
 import type { UserAttributeKey } from "@aws-amplify/auth";
 import type {} from "react";
@@ -53,8 +53,6 @@ export type ItemProps = {
   SK: string;
   PK: string;
   CHECKED: boolean;
-  isPending: boolean;
-  setIsPending: Dispatch<SetStateAction<boolean>>;
 };
 
 export type ItemListProps = {

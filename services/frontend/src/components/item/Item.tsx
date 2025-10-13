@@ -9,12 +9,12 @@ import { capitalizeName } from "../../utils/format";
 import styles from "./Item.module.scss";
 import { deleteItem, updateItem } from "../../utils/fetch";
 
-const Item = ({ VALUE, SK, CHECKED, isPending, setIsPending }: ItemProps) => {
+const Item = ({ VALUE, SK, CHECKED }: ItemProps) => {
   const queryClient = useQueryClient();
 
   const itemId = SK.slice(5);
 
-  const deleteItemMutation = useMutation({
+  const { mutate: deleteItemMutate, isPending: isDeletePending } = useMutation({
     mutationFn: deleteItem,
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
@@ -24,12 +24,9 @@ const Item = ({ VALUE, SK, CHECKED, isPending, setIsPending }: ItemProps) => {
       console.error(error);
       toast.error("Unable to add item");
     },
-    onSettled: () => {
-      setIsPending(false);
-    },
   });
 
-  const updateItemMutation = useMutation({
+  const { mutate: updateItemMutate, isPending: isUpdatePending } = useMutation({
     mutationFn: ({ id, checked }: { id: string; checked: boolean }) =>
       updateItem(id, checked),
     onSuccess: async () => {
@@ -40,21 +37,16 @@ const Item = ({ VALUE, SK, CHECKED, isPending, setIsPending }: ItemProps) => {
       console.error(error);
       toast.error("Unable to add item");
     },
-    onSettled: () => {
-      setIsPending(false);
-    },
   });
 
   const handleCheckMutation = (id: string, checked: boolean) => {
-    if (isPending) return;
-    setIsPending(true);
-    updateItemMutation.mutate({ id, checked });
+    if (isUpdatePending) return;
+    updateItemMutate({ id, checked });
   };
 
   const handleDelete = async (id: string) => {
-    if (isPending) return;
-    setIsPending(true);
-    deleteItemMutation.mutate(id);
+    if (isDeletePending) return;
+    deleteItemMutate(id);
   };
 
   const textStyles = `${styles.text} ${CHECKED ? styles.checked : ""}`;
@@ -71,7 +63,7 @@ const Item = ({ VALUE, SK, CHECKED, isPending, setIsPending }: ItemProps) => {
       <button
         onClick={() => handleDelete(itemId)}
         className={styles.button}
-        disabled={isPending}
+        disabled={isUpdatePending || isDeletePending}
       >
         <FaXmark className={styles.icon} />
       </button>

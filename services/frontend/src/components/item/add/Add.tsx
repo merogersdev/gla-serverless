@@ -12,14 +12,13 @@ import styles from "./Add.module.scss";
 
 const Add = ({ items }: { items: ItemProps[] }) => {
   const [newItem, setNewItem] = useState("");
-  const [isAddPending, setIsAddPending] = useState(false);
 
   const queryClient = useQueryClient();
   const newItemRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (e: any) => setNewItem(e.target.value);
 
-  const addItemMutation = useMutation({
+  const { mutate: addItemMutate, isPending } = useMutation({
     mutationFn: () => {
       const alreadyExists = items.some(
         (item) => item.VALUE.toLowerCase() === newItem.toLowerCase()
@@ -42,27 +41,22 @@ const Add = ({ items }: { items: ItemProps[] }) => {
       }
       toast.error("Unable to add item");
     },
-    onSettled: () => {
-      setIsAddPending(false);
-    },
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (isAddPending) return;
-    setIsAddPending(true);
+    if (isPending) return;
+    //setIsAddPending(true);
     if (newItem === "") {
       toast.error("Item cannot be blank");
-      setIsAddPending(false);
       return;
     }
     if (!nameRegex.test(newItem)) {
       toast.error("Item names must not contain special characters");
-      setIsAddPending(false);
       return;
     }
 
-    addItemMutation.mutate();
+    addItemMutate();
   };
 
   useEffect(() => {
@@ -79,7 +73,7 @@ const Add = ({ items }: { items: ItemProps[] }) => {
         aria-label="Add Item"
         ref={newItemRef}
       />
-      <button className={styles.button} type="submit" disabled={isAddPending}>
+      <button className={styles.button} type="submit" disabled={isPending}>
         <FaPlus className={styles.icon} />
       </button>
     </form>
