@@ -16,15 +16,19 @@ const config = getConfig();
 /* --- --- --- Certificate Stack --- --- --- */
 /* ----------------------------------------- */
 
-const certificate = new certificateStack(app, `GLAS-CertificateStack`, {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: "us-east-1",
+const certificate = new certificateStack(
+  app,
+  `GLAS-CertificateStack-${stage}`,
+  {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: "us-east-1",
+    },
+    stage: stage,
+    crossRegionReferences: true,
+    config,
   },
-  stage: stage,
-  crossRegionReferences: true,
-  config,
-});
+);
 
 /* ------------------------------------- */
 /* --- --- --- Backend Stack --- --- --- */
